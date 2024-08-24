@@ -1,6 +1,7 @@
 'use client'
 
 import { signIn } from 'next-auth/react'
+import { Button } from '../ui/button'
 
 // import { useRouter } from 'next/navigation'
 
@@ -13,5 +14,5 @@ export function LoginButton() {
     }
   }
 
-  return <button onClick={handleLogin}>Login with Google</button>
+  return <Button onClick={handleLogin}>Login with Google</Button>
 }
