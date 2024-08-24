@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { OrderTableRow } from './components/order-table-row'
+import { ProductTableRow } from './components/product-table-row'
 import { ProductDTO } from '../dtos/productDTO'
 import { api } from '@/services/api'
 
@@ -51,7 +51,7 @@ export default async function Home() {
           </TableHeader>
           <TableBody>
             {products.map((product) => {
-              return <OrderTableRow key={product.id} product={product} />
+              return <ProductTableRow key={product.id} product={product} />
             })}
           </TableBody>
         </Table>

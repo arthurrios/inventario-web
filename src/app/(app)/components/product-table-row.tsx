@@ -16,13 +16,13 @@ async function getProductCategory(categoryId: string) {
   return category
 }
 
-export async function OrderTableRow({ product }: OrderTableRowProps) {
+export async function ProductTableRow({ product }: OrderTableRowProps) {
   const category = await getProductCategory(product.categoryId)
 
   return (
     <TableRow>
       <TableCell className="w-3">
-        <DetailsButton />
+        <DetailsButton productId={product.id} />
       </TableCell>
       <TableCell className="w-3">{product.code}</TableCell>
       <TableCell>{product.name}</TableCell>

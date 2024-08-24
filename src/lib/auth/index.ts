@@ -10,8 +10,6 @@ const authOptions: NextAuthConfig = {
   providers: [
     GoogleProvider({
       profile(profile: GoogleProfile) {
-        console.log(profile)
-
         return {
           id: profile.sub,
           name: profile.name,
@@ -24,6 +22,8 @@ const authOptions: NextAuthConfig = {
 
   callbacks: {
     async session({ session, user }) {
+      console.log(user)
+
       return {
         ...session,
         user: {
