@@ -10,9 +10,11 @@ export default async function Auth() {
   }
 
   return (
-    <div>
-      <h1>Google OAuth with NestJS and Next.js</h1>
-      <LoginButton />
+    <div className="flex h-screen justify-center items-center">
+      <main className="flex flex-col gap-10 -mt-12">
+        <h1 className="text-6xl">inventory</h1>
+        <LoginButton />
+      </main>
     </div>
   )
 }

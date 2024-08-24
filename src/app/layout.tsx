@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { SessionProvider } from '@/components/session-provider'
 import { auth, BASE_PATH } from '@/lib/auth'
+import { twMerge } from 'tailwind-merge'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,7 +21,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={twMerge(inter.className, 'bg-black')}>
         <SessionProvider basePath={BASE_PATH} session={session}>
           {children}
         </SessionProvider>
