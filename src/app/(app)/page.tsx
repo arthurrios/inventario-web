@@ -1,7 +1,6 @@
-import { LogoutButton } from '@/components/app/logout-button'
 import { auth } from '@/lib/auth'
-import Image from 'next/image'
 import { redirect } from 'next/navigation'
+import { Header } from './components/header'
 
 export default async function Home() {
   const session = await auth()
@@ -11,14 +10,10 @@ export default async function Home() {
   }
 
   return (
-    <div>
-      <h1>Google OAuth with NestJS and Next.js</h1>
+    <div className="h-screen bg-black">
+      <Header session={session} />
 
-      <div>
-        <p>Welcome, {session?.user?.name}</p>
-        <Image src={session?.user?.avatar_url ?? ''} alt="Profile" />
-        <LogoutButton />
-      </div>
+      <div></div>
     </div>
   )
 }
