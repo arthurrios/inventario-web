@@ -1,5 +1,6 @@
 import { CategoryDTO } from '@/app/dtos/categoryDTO'
 import { ProductDTO } from '@/app/dtos/productDTO'
+import { DetailsButton } from '@/components/app/details-button'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { api } from '@/services/api'
 
@@ -20,8 +21,10 @@ export async function OrderTableRow({ product }: OrderTableRowProps) {
 
   return (
     <TableRow>
-      <TableCell>Details</TableCell>
-      <TableCell>{product.code}</TableCell>
+      <TableCell className="w-3">
+        <DetailsButton />
+      </TableCell>
+      <TableCell className="w-3">{product.code}</TableCell>
       <TableCell>{product.name}</TableCell>
       <TableCell>{category.name}</TableCell>
       <TableCell>
@@ -30,7 +33,9 @@ export async function OrderTableRow({ product }: OrderTableRowProps) {
           currency: 'BRL',
         }).format(product.price)}
       </TableCell>
-      <TableCell>{product.quantity_in_stock}</TableCell>
+      <TableCell className="w-3 text-center">
+        {product.quantity_in_stock}
+      </TableCell>
     </TableRow>
   )
 }
