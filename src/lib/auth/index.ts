@@ -23,31 +23,31 @@ const authOptions: NextAuthConfig = {
   ],
 
   callbacks: {
-    // async signIn({ user }) {
-    //   try {
-    //     const response = await api('/users', {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //       body: JSON.stringify({
-    //         id: user.id,
-    //         name: user.name,
-    //         email: user.email,
-    //         avatar_url: user.avatar_url,
-    //       }),
-    //     })
+    async signIn({ user }) {
+      try {
+        const response = await fetch('/user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            avatar_url: user.avatar_url,
+          }),
+        })
 
-    //     if (response.ok) {
-    //       return true
-    //     } else {
-    //       return false
-    //     }
-    //   } catch (error) {
-    //     console.error('Error syncing user with NestJS:', error)
-    //     return false // Deny sign in if an error occurs      }
-    //   }
-    // },
+        if (response.ok) {
+          return true
+        } else {
+          return false
+        }
+      } catch (error) {
+        console.error('Error syncing user with NestJS:', error)
+        return false // Deny sign in if an error occurs      }
+      }
+    },
     async session({ session, user }) {
       return {
         ...session,
