@@ -24,7 +24,12 @@ export async function OrderTableRow({ product }: OrderTableRowProps) {
       <TableCell>{product.code}</TableCell>
       <TableCell>{product.name}</TableCell>
       <TableCell>{category.name}</TableCell>
-      <TableCell>{product.price}</TableCell>
+      <TableCell>
+        {Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+        }).format(product.price)}
+      </TableCell>
       <TableCell>{product.quantity_in_stock}</TableCell>
     </TableRow>
   )
