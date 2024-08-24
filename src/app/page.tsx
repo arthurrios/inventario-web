@@ -1,39 +1,38 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
-import { LoginButton } from '../components/login-button'
-import { LogoutButton } from '../components/logout-button'
-
-type User = {
-  id: string
-  name: string
-  email: string
-  profilePicture: string
-  type: string // Include the user type
-}
+import { signIn, signOut, useSession } from 'next-auth/react'
 
 export default function Home() {
-  const [user, setUser] = useState<User | null>(null)
+  const session = useSession()
+  console.log(session)
 
-  useEffect(() => {
-    // Check if the user is stored in local storage
-    const storedUser = localStorage.getItem('user')
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+  async function handleLogin() {
+    try {
+      await signIn('google', { callbackUrl: '/' })
+    } catch (error) {
+      console.log(error)
     }
-  }, [])
+  }
+
+  async function handleLogout() {
+    try {
+      await signOut()
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <div>
       <h1>Google OAuth with NestJS and Next.js</h1>
-      {!user ? (
-        <LoginButton />
+      {!session?.data?.user ? (
+        <button onClick={handleLogin}>Login</button>
       ) : (
         <div>
-          <p>Welcome, {user.name}</p>
-          <Image src={user.profilePicture} alt="Profile" />
-          <LogoutButton />
+          <p>Welcome, {session?.data?.user?.name}</p>
+          <Image src={session.data.user.avatar_url} alt="Profile" />
+          <button onClick={handleLogout}>Logout</button>
         </div>
       )}
     </div>

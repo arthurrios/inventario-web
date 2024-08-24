@@ -1,4 +1,4 @@
-import { api } from '@/services/api'
+// import { api } from '@/services/api'
 import NextAuth, { NextAuthConfig } from 'next-auth'
 import GoogleProvider, { GoogleProfile } from 'next-auth/providers/google'
 
@@ -10,6 +10,8 @@ const authOptions: NextAuthConfig = {
   providers: [
     GoogleProvider({
       profile(profile: GoogleProfile) {
+        console.log(profile)
+
         return {
           id: profile.sub,
           name: profile.name,
@@ -21,37 +23,37 @@ const authOptions: NextAuthConfig = {
   ],
 
   callbacks: {
-    async signIn({ user }) {
-      try {
-        const response = await api('/users', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            avatar_url: user.avatar_url,
-          }),
-        })
+    // async signIn({ user }) {
+    //   try {
+    //     const response = await api('/users', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //       body: JSON.stringify({
+    //         id: user.id,
+    //         name: user.name,
+    //         email: user.email,
+    //         avatar_url: user.avatar_url,
+    //       }),
+    //     })
 
-        if (response.ok) {
-          return true
-        } else {
-          return false
-        }
-      } catch (error) {
-        console.error('Error syncing user with NestJS:', error)
-        return false // Deny sign in if an error occurs      }
-      }
-    },
+    //     if (response.ok) {
+    //       return true
+    //     } else {
+    //       return false
+    //     }
+    //   } catch (error) {
+    //     console.error('Error syncing user with NestJS:', error)
+    //     return false // Deny sign in if an error occurs      }
+    //   }
+    // },
     async session({ session, user }) {
       return {
         ...session,
         user: {
           ...session.user,
-          avatar_url: user.avatar_url,
+          avatar_url: user?.avatar_url,
         },
       }
     },
