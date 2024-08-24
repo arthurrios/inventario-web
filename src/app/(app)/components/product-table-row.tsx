@@ -3,6 +3,7 @@ import { ProductDTO } from '@/app/dtos/productDTO'
 import { DetailsButton } from '@/components/app/details-button'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { api } from '@/services/api'
+import { formatPrice } from '@/utils/formatPrice'
 
 interface OrderTableRowProps {
   product: ProductDTO
@@ -18,21 +19,20 @@ async function getProductCategory(categoryId: string) {
 
 export async function ProductTableRow({ product }: OrderTableRowProps) {
   const category = await getProductCategory(product.categoryId)
+  const productWithCategory = {
+    ...product,
+    category: category.name,
+  }
 
   return (
     <TableRow>
       <TableCell className="w-3">
-        <DetailsButton productId={product.id} />
+        <DetailsButton product={productWithCategory} />
       </TableCell>
       <TableCell className="w-3">{product.code}</TableCell>
       <TableCell>{product.name}</TableCell>
       <TableCell>{category.name}</TableCell>
-      <TableCell>
-        {Intl.NumberFormat('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
-        }).format(product.price)}
-      </TableCell>
+      <TableCell>{formatPrice(product.price)}</TableCell>
       <TableCell className="w-3 text-center">
         {product.quantity_in_stock}
       </TableCell>

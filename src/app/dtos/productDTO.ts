@@ -6,4 +6,5 @@ export interface ProductDTO {
   price: number
   quantity_in_stock: number
   categoryId: string
+  category?: string
 }
