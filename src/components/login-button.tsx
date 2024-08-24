@@ -1,12 +1,16 @@
 'use client'
 
+import { signIn } from 'next-auth/react'
+
 // import { useRouter } from 'next/navigation'
 
 export function LoginButton() {
-  // const router = useRouter()
-
-  const handleLogin = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google`
+  async function handleLogin() {
+    try {
+      await signIn('google', { callbackUrl: '/' })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return <button onClick={handleLogin}>Login with Google</button>

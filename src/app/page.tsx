@@ -1,38 +1,22 @@
-'use client'
-
+import { LoginButton } from '@/components/login-button'
+import { LogoutButton } from '@/components/logout-button'
+import { auth } from '@/lib/auth'
 import Image from 'next/image'
-import { signIn, signOut, useSession } from 'next-auth/react'
 
-export default function Home() {
-  const session = useSession()
+export default async function Home() {
+  const session = await auth()
   console.log(session)
-
-  async function handleLogin() {
-    try {
-      await signIn('google', { callbackUrl: '/' })
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async function handleLogout() {
-    try {
-      await signOut()
-    } catch (error) {
-      console.log(error)
-    }
-  }
 
   return (
     <div>
       <h1>Google OAuth with NestJS and Next.js</h1>
-      {!session?.data?.user ? (
-        <button onClick={handleLogin}>Login</button>
+      {!session?.user ? (
+        <LoginButton />
       ) : (
         <div>
-          <p>Welcome, {session?.data?.user?.name}</p>
-          <Image src={session.data.user.avatar_url} alt="Profile" />
-          <button onClick={handleLogout}>Logout</button>
+          <p>Welcome, {session?.user?.name}</p>
+          <Image src={session?.user?.avatar_url ?? ''} alt="Profile" />
+          <LogoutButton />
         </div>
       )}
     </div>

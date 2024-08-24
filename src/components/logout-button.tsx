@@ -1,22 +1,14 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { signOut } from 'next-auth/react'
 
 export function LogoutButton() {
-  const router = useRouter()
-
-  const handleLogout = async () => {
-    // Clear user and token
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('user')
-
-    // Optionally, notify the backend to invalidate the session
-    await fetch('/api/logout', {
-      method: 'POST',
-      credentials: 'include',
-    })
-
-    router.push('/') // Redirect to home or login page
+  async function handleLogout() {
+    try {
+      await signOut()
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return <button onClick={handleLogout}>Logout</button>
