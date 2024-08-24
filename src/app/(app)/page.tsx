@@ -10,9 +10,10 @@ import {
 } from '@/components/ui/table'
 import { OrderTableRow } from './components/order-table-row'
 import { ProductDTO } from '../dtos/productDTO'
+import { api } from '@/services/api'
 
-async function fetchProducts() {
-  const response = await fetch('http://localhost:3001/product', {
+async function getProducts() {
+  const response = await api('/product', {
     method: 'GET',
   })
 
@@ -23,7 +24,7 @@ async function fetchProducts() {
 
 export default async function Home() {
   const session = await auth()
-  const products = await fetchProducts()
+  const products = await getProducts()
 
   if (!session) {
     redirect('/auth')
@@ -40,6 +41,7 @@ export default async function Home() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead />
               <TableHead>Code</TableHead>
               <TableHead>Product</TableHead>
               <TableHead>Category</TableHead>
