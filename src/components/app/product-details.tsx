@@ -8,7 +8,6 @@ import { Textarea } from '../ui/textarea'
 import { useMaskito } from '@maskito/react'
 import BRLmask from '@/masks/BRLmask'
 import { Button } from '../ui/button'
-import { useEffect, useState } from 'react'
 import { Input } from '../ui/input'
 import { formatPrice } from '@/utils/formatPrice'
 import {
@@ -20,13 +19,40 @@ import {
 } from '../ui/select'
 import { api } from '@/services/api'
 import { CategoryDTO } from '@/app/dtos/categoryDTO'
+import { useForm, Controller, SubmitHandler } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect, useState } from 'react'
 
 interface ProductDetailsProps extends DetailsButtonProps {}
 
+const schema = z.object({
+  description: z.string().min(1, 'Insira uma descrição'),
+  unitPrice: z.string().min(1, 'Valor da unidade é obrigatório'),
+  quantity: z
+    .number({ message: 'Digite apenas números' })
+    .min(0, 'Quantidade deve ser um número positivo'),
+  category: z.string().min(1, 'Selecione uma categoria'),
+})
+
+type FormValues = z.infer<typeof schema>
+
 export function ProductDetails({ product }: ProductDetailsProps) {
-  const [description, setDescription] = useState(product.description)
-  const [unitPrice, setUnitPrice] = useState(formatPrice(product.price))
-  const [quantity, setQuantity] = useState(product.quantity_in_stock)
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: {
+      description: product.description,
+      unitPrice: formatPrice(product.price),
+      quantity: product.quantity_in_stock,
+      category: product.category,
+    },
+    resolver: zodResolver(schema),
+  })
+
   const [categories, setCategories] = useState<CategoryDTO[]>([])
 
   const maskedInputRef = useMaskito({ options: BRLmask })
@@ -34,72 +60,129 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   useEffect(() => {
     async function getCategories() {
       const response = await api('/category')
-
       const categories: CategoryDTO[] = await response.json()
-
       setCategories(categories)
     }
-
     getCategories()
   }, [])
+
+  // Watch all fields
+
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
+    // Convert unitPrice to number and remove "R$"
+    const unitPriceNumber = parseFloat(
+      data.unitPrice.replace('R$', '').replace(',', '.'),
+    )
+
+    // Prepare data for submission
+    const submissionData = {
+      ...data,
+      unitPrice: unitPriceNumber,
+    }
+
+    // Handle form submission
+    console.log(submissionData)
+  }
 
   return (
     <DialogContent>
       <DialogTitle>{product.name}</DialogTitle>
-      <div className="space-y-2">
-        <Label htmlFor="description">Descrição</Label>
-        <Textarea
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Descrição do produto"
-          value={description}
-          className="resize-none"
-        />
-      </div>
-      <Table>
-        <TableBody>
-          <TableRow className="flex items-center justify-between">
-            <TableCell className="flex-1">Category</TableCell>
-            <TableCell>
-              <Select defaultValue={product.category}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.name}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </TableCell>
-          </TableRow>
-          <TableRow className="flex items-center justify-between">
-            <TableCell className="flex-1">Unit price</TableCell>
-            <TableCell>
-              <Input
-                ref={maskedInputRef}
-                value={unitPrice}
-                onInput={(e) => setUnitPrice(e.currentTarget.value)}
-                className="w-36"
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="space-y-2">
+          <Label htmlFor="description">Descrição</Label>
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <Textarea
+                {...field}
+                placeholder="Descrição do produto"
+                className="resize-none"
               />
-            </TableCell>
-          </TableRow>
-          <TableRow className="flex items-center justify-between">
-            <TableCell className="flex-1">Quantity in stock</TableCell>
-            <TableCell>
-              <Input
-                type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                className="w-24"
-              />
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+            )}
+          />
+          {errors.description && (
+            <p className="text-red-500">{errors.description.message}</p>
+          )}
+        </div>
+        <Table>
+          <TableBody>
+            <TableRow className="flex items-center justify-between">
+              <TableCell className="flex-1 relative">Category</TableCell>
+              <TableCell className="flex flex-col gap-2 items-end">
+                <Controller
+                  name="category"
+                  control={control}
+                  render={({ field }) => (
+                    <Select {...field}>
+                      <SelectTrigger className="w-fit">
+                        <SelectValue placeholder="Selecione a categoria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.name}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.category && (
+                  <p className="text-red-500">{errors.category.message}</p>
+                )}
+              </TableCell>
+            </TableRow>
+            <TableRow className="flex items-center justify-between">
+              <TableCell className="flex-1">Unit price</TableCell>
+              <TableCell className="flex flex-col gap-2 items-end">
+                <Controller
+                  name="unitPrice"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      ref={maskedInputRef}
+                      className="w-fit"
+                      onInput={(e) =>
+                        setValue('unitPrice', e.currentTarget.value)
+                      }
+                    />
+                  )}
+                />
+                {errors.unitPrice && (
+                  <p className="text-red-500">{errors.unitPrice.message}</p>
+                )}
+              </TableCell>
+            </TableRow>
+            <TableRow className="flex items-center justify-between">
+              <TableCell className="flex-1">Quantity in stock</TableCell>
+              <TableCell className="flex flex-col gap-2 items-end">
+                <Controller
+                  name="quantity"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      type="number"
+                      className="w-fit"
+                      onChange={(e) => {
+                        const value = e.currentTarget.value
+                        setValue('quantity', parseFloat(value))
+                      }}
+                    />
+                  )}
+                />
+                {errors.quantity && (
+                  <p className="text-red-500">{errors.quantity.message}</p>
+                )}
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
 
-      <Button type="submit">Salvar</Button>
+        <Button type="submit">Salvar</Button>
+      </form>
     </DialogContent>
   )
 }
