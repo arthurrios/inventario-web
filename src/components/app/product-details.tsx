@@ -29,6 +29,7 @@ import { useRouter } from 'next/navigation'
 interface ProductDetailsProps extends DetailsButtonProps {}
 
 const schema = z.object({
+  name: z.string().min(3, 'Nome do produto deve ter no mínimo 3 caracteres'),
   description: z.string().min(1, 'Insira uma descrição'),
   unitPrice: z.string().min(1, 'Valor da unidade é obrigatório'),
   quantity_in_stock: z
@@ -88,6 +89,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
+      name: product.name,
       description: product.description,
       unitPrice: formatPrice(product.price),
       quantity_in_stock: product.quantity_in_stock,
@@ -115,7 +117,20 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   return (
     <DialogContent>
       <DialogTitle>{product.name}</DialogTitle>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+        <div className="space-y-2">
+          <Label htmlFor="name">Nome</Label>
+          <Controller
+            name="name"
+            control={control}
+            render={({ field }) => (
+              <Input {...field} placeholder="Nome do produto" />
+            )}
+          />
+          {errors.name && (
+            <p className="text-red-500 text-sm">{errors.name.message}</p>
+          )}
+        </div>
         <div className="space-y-2">
           <Label htmlFor="description">Descrição</Label>
           <Controller
@@ -130,13 +145,13 @@ export function ProductDetails({ product }: ProductDetailsProps) {
             )}
           />
           {errors.description && (
-            <p className="text-red-500">{errors.description.message}</p>
+            <p className="text-red-500 text-sm">{errors.description.message}</p>
           )}
         </div>
         <Table>
           <TableBody>
             <TableRow className="flex items-center justify-between">
-              <TableCell className="flex-1 relative">Category</TableCell>
+              <TableCell className="flex-1 relative">Categoria</TableCell>
               <TableCell className="flex flex-col gap-2 items-end">
                 <Controller
                   name="categoryId"
@@ -166,12 +181,14 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                   )}
                 />
                 {errors.categoryId && (
-                  <p className="text-red-500">{errors.categoryId.message}</p>
+                  <p className="text-red-500 text-sm">
+                    {errors.categoryId.message}
+                  </p>
                 )}
               </TableCell>
             </TableRow>
             <TableRow className="flex items-center justify-between">
-              <TableCell className="flex-1">Unit price</TableCell>
+              <TableCell className="flex-1">Preço unitário</TableCell>
               <TableCell className="flex flex-col gap-2 items-end">
                 <Controller
                   name="unitPrice"
@@ -188,12 +205,14 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                   )}
                 />
                 {errors.unitPrice && (
-                  <p className="text-red-500">{errors.unitPrice.message}</p>
+                  <p className="text-red-500 text-sm">
+                    {errors.unitPrice.message}
+                  </p>
                 )}
               </TableCell>
             </TableRow>
             <TableRow className="flex items-center justify-between">
-              <TableCell className="flex-1">Quantity in stock</TableCell>
+              <TableCell className="flex-1">Quantidade no estoque</TableCell>
               <TableCell className="flex flex-col gap-2 items-end">
                 <Controller
                   name="quantity_in_stock"
@@ -211,7 +230,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                   )}
                 />
                 {errors.quantity_in_stock && (
-                  <p className="text-red-500">
+                  <p className="text-red-500 text-sm">
                     {errors.quantity_in_stock.message}
                   </p>
                 )}
