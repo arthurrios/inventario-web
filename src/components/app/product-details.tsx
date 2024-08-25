@@ -1,7 +1,5 @@
-'use client'
-
 import React from 'react'
-import { DialogContent, DialogTitle } from '../ui/dialog'
+import { DialogContent, DialogFooter, DialogTitle } from '../ui/dialog'
 import { Table, TableBody, TableCell, TableRow } from '../ui/table'
 import { DetailsButtonProps } from './details-button'
 import { Label } from '../ui/label'
@@ -26,7 +24,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 
-interface ProductDetailsProps extends DetailsButtonProps {}
+interface ProductDetailsProps extends DetailsButtonProps {
+  onClose: () => void
+}
 
 const schema = z.object({
   name: z.string().min(3, 'Nome do produto deve ter no mínimo 3 caracteres'),
@@ -62,7 +62,7 @@ async function updateProduct(productId: string, data: FormValues) {
   return response.json()
 }
 
-export function ProductDetails({ product }: ProductDetailsProps) {
+export function ProductDetails({ product, onClose }: ProductDetailsProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
 
@@ -71,6 +71,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product'] })
       router.refresh()
+      onClose()
     },
     onError: (error) => {
       console.error(error)
@@ -239,9 +240,11 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           </TableBody>
         </Table>
 
-        <Button className="w-full mt-4" type="submit">
-          Salvar
-        </Button>
+        <DialogFooter>
+          <Button className="w-full mt-4" type="submit">
+            Salvar
+          </Button>
+        </DialogFooter>
       </form>
     </DialogContent>
   )
