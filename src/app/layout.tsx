@@ -5,6 +5,7 @@ import { SessionProvider } from '@/components/session-provider'
 import { auth, BASE_PATH } from '@/lib/auth'
 import { twMerge } from 'tailwind-merge'
 import { QueryClientWrapper } from '@/components/query-client-wrapper'
+import { Toaster } from '@/components/ui/toaster'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,6 +27,7 @@ export default async function RootLayout({
         <SessionProvider basePath={BASE_PATH} session={session}>
           <QueryClientWrapper>{children}</QueryClientWrapper>
         </SessionProvider>
+        <Toaster />
       </body>
     </html>
   )

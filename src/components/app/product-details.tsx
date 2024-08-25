@@ -23,6 +23,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
+import { useToast } from '../ui/use-toast'
 
 interface ProductDetailsProps extends DetailsButtonProps {
   onClose: () => void
@@ -65,12 +66,17 @@ async function updateProduct(productId: string, data: FormValues) {
 export function ProductDetails({ product, onClose }: ProductDetailsProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
+  const { toast } = useToast()
 
   const mutation = useMutation({
     mutationFn: (data: FormValues) => updateProduct(product.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product'] })
       router.refresh()
+      toast({
+        variant: 'success',
+        title: 'Sucesso ao atualizar item!',
+      })
       onClose()
     },
     onError: (error) => {
