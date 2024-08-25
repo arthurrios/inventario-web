@@ -22,7 +22,11 @@ export function DetailsButton({ product }: DetailsButtonProps) {
         <DialogTrigger asChild>
           <Search size={16} />
         </DialogTrigger>
-        <ProductDetails product={product} onClose={handleCloseDialog} />
+        <ProductDetails
+          product={product}
+          onClose={handleCloseDialog}
+          mode="update"
+        />
       </Dialog>
     </Button>
   )

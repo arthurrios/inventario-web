@@ -13,9 +13,7 @@ import { ProductDTO } from '../dtos/productDTO'
 import { api } from '@/services/api'
 import { queryClient } from '@/lib/queryClient'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogTrigger } from '@/components/ui/dialog'
-import { Plus } from 'lucide-react'
+import { CreateProductButton } from '@/components/app/create-product-button'
 
 export async function getProducts() {
   const response = await api('/product', {
@@ -48,14 +46,7 @@ export default async function Home() {
 
         <div className="flex justify-between items-center">
           <h1 className="my-6 font-semibold text-xl">Products</h1>
-          <Dialog>
-            <DialogTrigger className="flex items-center gap-2" asChild>
-              <Button>
-                Criar
-                <Plus size={16} />
-              </Button>
-            </DialogTrigger>
-          </Dialog>
+          <CreateProductButton />
         </div>
         <div className="border rounded-md">
           <Table>

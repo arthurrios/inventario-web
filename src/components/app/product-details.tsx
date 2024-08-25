@@ -1,7 +1,6 @@
 import React from 'react'
 import { DialogContent, DialogFooter, DialogTitle } from '../ui/dialog'
 import { Table, TableBody, TableCell, TableRow } from '../ui/table'
-import { DetailsButtonProps } from './details-button'
 import { Label } from '../ui/label'
 import { Textarea } from '../ui/textarea'
 import { useMaskito } from '@maskito/react'
@@ -25,8 +24,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useToast } from '../ui/use-toast'
 
-interface ProductDetailsProps extends DetailsButtonProps {
-  onClose: () => void
+interface ProductFormProps {
+  mode: 'create' | 'update'
+  product?: {
+    id: string
+    name: string
+    description: string
+    price: number
+    quantity_in_stock: number
+    category?: { id: string }
+  }
+  onClose?: () => void
 }
 
 const schema = z.object({
@@ -63,21 +71,39 @@ async function updateProduct(productId: string, data: FormValues) {
   return response.json()
 }
 
-export function ProductDetails({ product, onClose }: ProductDetailsProps) {
+async function createProduct(data: FormValues) {
+  const response = await api('/product', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to create product')
+  }
+  return response.json()
+}
+
+export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
   const { toast } = useToast()
 
   const mutation = useMutation({
-    mutationFn: (data: FormValues) => updateProduct(product.id, data),
+    mutationFn:
+      mode === 'update'
+        ? (data: FormValues) => updateProduct(product!.id, data)
+        : (data: FormValues) => createProduct(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product'] })
       router.refresh()
       toast({
         variant: 'success',
-        title: 'Sucesso ao atualizar item!',
+        title: `Sucesso ao ${mode === 'update' ? 'atualizar' : 'criar'} item!`,
       })
-      onClose()
+      onClose && onClose()
     },
     onError: (error) => {
       console.error(error)
@@ -95,13 +121,22 @@ export function ProductDetails({ product, onClose }: ProductDetailsProps) {
     setValue,
     formState: { errors },
   } = useForm<FormValues>({
-    defaultValues: {
-      name: product.name,
-      description: product.description,
-      unitPrice: formatPrice(product.price),
-      quantity_in_stock: product.quantity_in_stock,
-      categoryId: product.category?.id || '',
-    },
+    defaultValues:
+      mode === 'update' && product
+        ? {
+            name: product.name,
+            description: product.description,
+            unitPrice: formatPrice(product.price),
+            quantity_in_stock: product.quantity_in_stock,
+            categoryId: product.category?.id,
+          }
+        : {
+            name: '',
+            description: '',
+            unitPrice: formatPrice(0),
+            quantity_in_stock: 0,
+            categoryId: '',
+          },
     resolver: zodResolver(schema),
   })
 
@@ -123,7 +158,9 @@ export function ProductDetails({ product, onClose }: ProductDetailsProps) {
 
   return (
     <DialogContent>
-      <DialogTitle>{product.name}</DialogTitle>
+      <DialogTitle>
+        {mode === 'update' ? 'Editar produto' : 'Criar Novo Produto'}
+      </DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
         <div className="space-y-2">
           <Label htmlFor="name">Nome</Label>
