@@ -5,14 +5,19 @@ import { Table, TableBody, TableCell, TableRow } from '../ui/table'
 import { DetailsButtonProps } from './details-button'
 import { Label } from '../ui/label'
 import { Textarea } from '../ui/textarea'
-import { formatPrice } from '@/utils/formatPrice'
+import { useMaskito } from '@maskito/react'
+import BRLmask from '@/masks/BRLmask'
 import { Button } from '../ui/button'
 import { useState } from 'react'
+import { Input } from '../ui/input'
+import { formatPrice } from '@/utils/formatPrice'
 
 interface ProductDetailsProps extends DetailsButtonProps {}
 
 export function ProductDetails({ product }: ProductDetailsProps) {
   const [description, setDescription] = useState(product.description)
+  const [unitPrice, setUnitPrice] = useState(formatPrice(product.price))
+  const maskedInputRef = useMaskito({ options: BRLmask })
 
   return (
     <DialogContent>
@@ -34,7 +39,13 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           </TableRow>
           <TableRow className="flex justify-between">
             <TableCell className="flex-1">Unit price</TableCell>
-            <TableCell>{formatPrice(product.price)}</TableCell>
+            <TableCell>
+              <Input
+                ref={maskedInputRef}
+                value={unitPrice}
+                onInput={(e) => setUnitPrice(e.currentTarget.value)}
+              />
+            </TableCell>
           </TableRow>
           <TableRow className="flex justify-between">
             <TableCell className="flex-1">Quantity in stock</TableCell>
