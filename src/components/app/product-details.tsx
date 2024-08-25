@@ -1,6 +1,6 @@
 'use client'
 
-import { DialogContent } from '../ui/dialog'
+import { DialogContent, DialogTitle } from '../ui/dialog'
 import { Table, TableBody, TableCell, TableRow } from '../ui/table'
 import { DetailsButtonProps } from './details-button'
 import { Label } from '../ui/label'
@@ -8,9 +8,18 @@ import { Textarea } from '../ui/textarea'
 import { useMaskito } from '@maskito/react'
 import BRLmask from '@/masks/BRLmask'
 import { Button } from '../ui/button'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Input } from '../ui/input'
 import { formatPrice } from '@/utils/formatPrice'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
+import { api } from '@/services/api'
+import { CategoryDTO } from '@/app/dtos/categoryDTO'
 
 interface ProductDetailsProps extends DetailsButtonProps {}
 
@@ -18,12 +27,25 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   const [description, setDescription] = useState(product.description)
   const [unitPrice, setUnitPrice] = useState(formatPrice(product.price))
   const [quantity, setQuantity] = useState(product.quantity_in_stock)
+  const [categories, setCategories] = useState<CategoryDTO[]>([])
 
   const maskedInputRef = useMaskito({ options: BRLmask })
 
+  useEffect(() => {
+    async function getCategories() {
+      const response = await api('/category')
+
+      const categories: CategoryDTO[] = await response.json()
+
+      setCategories(categories)
+    }
+
+    getCategories()
+  }, [])
+
   return (
     <DialogContent>
-      <h1>{product.name}</h1>
+      <DialogTitle>{product.name}</DialogTitle>
       <div className="space-y-2">
         <Label htmlFor="description">Descrição</Label>
         <Textarea
@@ -35,9 +57,22 @@ export function ProductDetails({ product }: ProductDetailsProps) {
       </div>
       <Table>
         <TableBody>
-          <TableRow className="flex justify-between">
+          <TableRow className="flex items-center justify-between">
             <TableCell className="flex-1">Category</TableCell>
-            <TableCell>{product.category}</TableCell>
+            <TableCell>
+              <Select defaultValue={product.category}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.name}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </TableCell>
           </TableRow>
           <TableRow className="flex items-center justify-between">
             <TableCell className="flex-1">Unit price</TableCell>
