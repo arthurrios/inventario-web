@@ -4,6 +4,7 @@ import './globals.css'
 import { SessionProvider } from '@/components/session-provider'
 import { auth, BASE_PATH } from '@/lib/auth'
 import { twMerge } from 'tailwind-merge'
+import { QueryClientWrapper } from '@/components/query-client-wrapper'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -23,7 +24,7 @@ export default async function RootLayout({
     <html lang="en" className="dark">
       <body className={twMerge(inter.className, 'bg-black')}>
         <SessionProvider basePath={BASE_PATH} session={session}>
-          {children}
+          <QueryClientWrapper>{children}</QueryClientWrapper>
         </SessionProvider>
       </body>
     </html>

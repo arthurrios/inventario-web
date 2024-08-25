@@ -22,7 +22,7 @@ import { CategoryDTO } from '@/app/dtos/categoryDTO'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 
 interface ProductDetailsProps extends DetailsButtonProps {}
 
@@ -37,7 +37,20 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>
 
+async function getCategories() {
+  const response = await api('/category')
+
+  const categories: CategoryDTO[] = await response.json()
+
+  return categories
+}
+
 export function ProductDetails({ product }: ProductDetailsProps) {
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories,
+  })
+
   const {
     control,
     handleSubmit,
@@ -53,18 +66,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     resolver: zodResolver(schema),
   })
 
-  const [categories, setCategories] = useState<CategoryDTO[]>([])
-
   const maskedInputRef = useMaskito({ options: BRLmask })
-
-  useEffect(() => {
-    async function getCategories() {
-      const response = await api('/category')
-      const categories: CategoryDTO[] = await response.json()
-      setCategories(categories)
-    }
-    getCategories()
-  }, [])
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
     const unitPriceNumber = parseFloat(
@@ -107,13 +109,13 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                 <Controller
                   name="category"
                   control={control}
-                  render={({ field }) => (
-                    <Select {...field}>
+                  render={({ field: { onChange, value } }) => (
+                    <Select value={value} onValueChange={onChange}>
                       <SelectTrigger className="w-fit">
                         <SelectValue placeholder="Selecione a categoria" />
                       </SelectTrigger>
                       <SelectContent>
-                        {categories.map((category) => (
+                        {categories?.map((category) => (
                           <SelectItem key={category.id} value={category.name}>
                             {category.name}
                           </SelectItem>
