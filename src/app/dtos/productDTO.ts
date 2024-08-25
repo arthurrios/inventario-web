@@ -1,3 +1,5 @@
+import { CategoryDTO } from './categoryDTO'
+
 export interface ProductDTO {
   id: string
   code: string
@@ -6,5 +8,5 @@ export interface ProductDTO {
   price: number
   quantity_in_stock: number
   categoryId: string
-  category?: string
+  category?: CategoryDTO
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { DialogContent, DialogTitle } from '../ui/dialog'
 import { Table, TableBody, TableCell, TableRow } from '../ui/table'
 import { DetailsButtonProps } from './details-button'
@@ -22,7 +23,7 @@ import { CategoryDTO } from '@/app/dtos/categoryDTO'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 interface ProductDetailsProps extends DetailsButtonProps {}
 
@@ -32,20 +33,51 @@ const schema = z.object({
   quantity: z
     .number({ message: 'Digite apenas números' })
     .min(0, 'Quantidade deve ser um número positivo'),
-  category: z.string().min(1, 'Selecione uma categoria'),
+  categoryId: z.string().min(1, 'Selecione uma categoria'),
 })
 
 type FormValues = z.infer<typeof schema>
 
+type FormDataType = Omit<FormValues, 'unitPrice'> & {
+  unitPrice: number
+}
+
 async function getCategories() {
   const response = await api('/category')
-
   const categories: CategoryDTO[] = await response.json()
-
   return categories
 }
 
+async function updateProduct(productId: string, data: FormDataType) {
+  const response = await api(`/product/${productId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to update product')
+  }
+  return response.json()
+}
+
 export function ProductDetails({ product }: ProductDetailsProps) {
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: (data: FormDataType) => updateProduct(product.id, data),
+    onSuccess: () => {
+      console.log('Product updated')
+
+      queryClient.invalidateQueries({ queryKey: ['product'] })
+    },
+    onError: (error) => {
+      console.error(error)
+    },
+  })
+
   const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
@@ -61,7 +93,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
       description: product.description,
       unitPrice: formatPrice(product.price),
       quantity: product.quantity_in_stock,
-      category: product.category,
+      categoryId: product.category?.id || '',
     },
     resolver: zodResolver(schema),
   })
@@ -72,12 +104,14 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     const unitPriceNumber = parseFloat(
       data.unitPrice.replace('R$', '').replace(',', '.'),
     )
-    const submissionData = {
+    const submissionData: FormDataType = {
       ...data,
       unitPrice: unitPriceNumber,
     }
 
-    console.log(submissionData)
+    // console.log(submissionData)
+
+    mutation.mutate(submissionData)
   }
 
   return (
@@ -107,16 +141,25 @@ export function ProductDetails({ product }: ProductDetailsProps) {
               <TableCell className="flex-1 relative">Category</TableCell>
               <TableCell className="flex flex-col gap-2 items-end">
                 <Controller
-                  name="category"
+                  name="categoryId"
                   control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <Select value={value} onValueChange={onChange}>
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={(selectedId) => {
+                        field.onChange(selectedId)
+                      }}
+                    >
                       <SelectTrigger className="w-fit">
-                        <SelectValue placeholder="Selecione a categoria" />
+                        <SelectValue placeholder="Selecione a categoria">
+                          {categories?.find(
+                            (category) => category.id === field.value,
+                          )?.name || 'Selecione uma categoria'}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {categories?.map((category) => (
-                          <SelectItem key={category.id} value={category.name}>
+                          <SelectItem key={category.id} value={category.id}>
                             {category.name}
                           </SelectItem>
                         ))}
@@ -124,8 +167,8 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                     </Select>
                   )}
                 />
-                {errors.category && (
-                  <p className="text-red-500">{errors.category.message}</p>
+                {errors.categoryId && (
+                  <p className="text-red-500">{errors.categoryId.message}</p>
                 )}
               </TableCell>
             </TableRow>

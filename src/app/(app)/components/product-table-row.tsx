@@ -21,7 +21,7 @@ export async function ProductTableRow({ product }: OrderTableRowProps) {
   const category = await getProductCategory(product.categoryId)
   const productWithCategory = {
     ...product,
-    category: category.name,
+    category,
   }
 
   return (
