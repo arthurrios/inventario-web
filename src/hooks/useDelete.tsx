@@ -1,9 +1,9 @@
 'use client'
 
-import { toast } from '@/components/ui/use-toast'
 import { api } from '@/services/api'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 export function useDelete(endpoint: string) {
   const router = useRouter()
@@ -32,18 +32,11 @@ export function useDelete(endpoint: string) {
     },
     onSuccess: () => {
       router.refresh()
-      toast({
-        variant: 'success',
-        title: 'Item deletado com sucesso!',
-      })
+      toast.error('Item deletado com sucesso!')
     },
     onError: (error) => {
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao apagar item',
-        description:
-          error instanceof Error ? error.message : 'Erro desconhecido',
-      })
+      console.log(error)
+      toast.error('Erro ao apagar item')
     },
   })
 }

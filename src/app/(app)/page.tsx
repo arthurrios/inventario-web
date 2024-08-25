@@ -25,7 +25,7 @@ export async function getProducts() {
   return products
 }
 
-export default async function Home() {
+export default async function ProductsPage() {
   const session = await auth()
   // const products = await getProducts()
 

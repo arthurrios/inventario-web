@@ -22,8 +22,8 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { useToast } from '../ui/use-toast'
 import { createProduct, updateProduct } from '@/services/productsServices'
+import { toast } from 'sonner'
 
 interface ProductFormProps {
   mode: 'create' | 'update'
@@ -59,7 +59,6 @@ async function getCategories() {
 export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
-  const { toast } = useToast()
 
   const mutation = useMutation({
     mutationFn:
@@ -69,10 +68,10 @@ export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product'] })
       router.refresh()
-      toast({
-        variant: 'success',
-        title: `Sucesso ao ${mode === 'update' ? 'atualizar' : 'criar'} item!`,
-      })
+      toast.success(
+        `Sucesso ao ${mode === 'update' ? 'atualizar' : 'criar'} item!`,
+        {},
+      )
       onClose && onClose()
     },
     onError: (error) => {
@@ -235,6 +234,7 @@ export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
                     <Input
                       {...field}
                       type="number"
+                      min={1}
                       className="w-fit"
                       onChange={(e) => {
                         const value = e.currentTarget.value
