@@ -66,21 +66,15 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     getCategories()
   }, [])
 
-  // Watch all fields
-
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    // Convert unitPrice to number and remove "R$"
     const unitPriceNumber = parseFloat(
       data.unitPrice.replace('R$', '').replace(',', '.'),
     )
-
-    // Prepare data for submission
     const submissionData = {
       ...data,
       unitPrice: unitPriceNumber,
     }
 
-    // Handle form submission
     console.log(submissionData)
   }
 
@@ -181,7 +175,9 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           </TableBody>
         </Table>
 
-        <Button type="submit">Salvar</Button>
+        <Button className="w-full mt-4" type="submit">
+          Salvar
+        </Button>
       </form>
     </DialogContent>
   )
