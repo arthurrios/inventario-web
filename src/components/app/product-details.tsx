@@ -24,23 +24,20 @@ import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 
 interface ProductDetailsProps extends DetailsButtonProps {}
 
 const schema = z.object({
   description: z.string().min(1, 'Insira uma descrição'),
   unitPrice: z.string().min(1, 'Valor da unidade é obrigatório'),
-  quantity: z
+  quantity_in_stock: z
     .number({ message: 'Digite apenas números' })
     .min(0, 'Quantidade deve ser um número positivo'),
   categoryId: z.string().min(1, 'Selecione uma categoria'),
 })
 
-type FormValues = z.infer<typeof schema>
-
-type FormDataType = Omit<FormValues, 'unitPrice'> & {
-  unitPrice: number
-}
+type FormValues = z.infer<typeof schema> & { price: number }
 
 async function getCategories() {
   const response = await api('/category')
@@ -48,7 +45,8 @@ async function getCategories() {
   return categories
 }
 
-async function updateProduct(productId: string, data: FormDataType) {
+async function updateProduct(productId: string, data: FormValues) {
+  console.log(data)
   const response = await api(`/product/${productId}`, {
     method: 'PUT',
     body: JSON.stringify(data),
@@ -65,13 +63,13 @@ async function updateProduct(productId: string, data: FormDataType) {
 
 export function ProductDetails({ product }: ProductDetailsProps) {
   const queryClient = useQueryClient()
+  const router = useRouter()
 
   const mutation = useMutation({
-    mutationFn: (data: FormDataType) => updateProduct(product.id, data),
+    mutationFn: (data: FormValues) => updateProduct(product.id, data),
     onSuccess: () => {
-      console.log('Product updated')
-
       queryClient.invalidateQueries({ queryKey: ['product'] })
+      router.refresh()
     },
     onError: (error) => {
       console.error(error)
@@ -92,7 +90,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     defaultValues: {
       description: product.description,
       unitPrice: formatPrice(product.price),
-      quantity: product.quantity_in_stock,
+      quantity_in_stock: product.quantity_in_stock,
       categoryId: product.category?.id || '',
     },
     resolver: zodResolver(schema),
@@ -104,12 +102,12 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     const unitPriceNumber = parseFloat(
       data.unitPrice.replace('R$', '').replace(',', '.'),
     )
-    const submissionData: FormDataType = {
+    const submissionData: FormValues = {
       ...data,
-      unitPrice: unitPriceNumber,
+      price: unitPriceNumber,
     }
 
-    // console.log(submissionData)
+    delete (submissionData as Partial<FormValues>).unitPrice
 
     mutation.mutate(submissionData)
   }
@@ -198,7 +196,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
               <TableCell className="flex-1">Quantity in stock</TableCell>
               <TableCell className="flex flex-col gap-2 items-end">
                 <Controller
-                  name="quantity"
+                  name="quantity_in_stock"
                   control={control}
                   render={({ field }) => (
                     <Input
@@ -207,13 +205,15 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                       className="w-fit"
                       onChange={(e) => {
                         const value = e.currentTarget.value
-                        setValue('quantity', parseFloat(value))
+                        setValue('quantity_in_stock', parseFloat(value))
                       }}
                     />
                   )}
                 />
-                {errors.quantity && (
-                  <p className="text-red-500">{errors.quantity.message}</p>
+                {errors.quantity_in_stock && (
+                  <p className="text-red-500">
+                    {errors.quantity_in_stock.message}
+                  </p>
                 )}
               </TableCell>
             </TableRow>
