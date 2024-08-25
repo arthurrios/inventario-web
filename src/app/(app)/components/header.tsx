@@ -8,7 +8,7 @@ interface HeaderProps {
 
 export function Header({ session }: HeaderProps) {
   return (
-    <header className="flex pt-8">
+    <header className="flex pt-8 mb-4">
       <div className="bg-zinc-900 border border-zinc-700 w-full flex items-center justify-between p-4 rounded-md">
         <h1 className="text-lg font-semibold leading-3">inventory</h1>
         <div className="flex items-center h-full">

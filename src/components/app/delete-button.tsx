@@ -39,7 +39,11 @@ export function DeleteButton({ itemId, endpoint }: DeleteButtonProps) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={() => deleteItem(itemId)}>
+          <AlertDialogAction
+            variant={'destructive'}
+            className="bg-destructive"
+            onClick={() => deleteItem(itemId)}
+          >
             Apagar
           </AlertDialogAction>
         </AlertDialogFooter>
