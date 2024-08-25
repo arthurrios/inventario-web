@@ -17,6 +17,8 @@ interface ProductDetailsProps extends DetailsButtonProps {}
 export function ProductDetails({ product }: ProductDetailsProps) {
   const [description, setDescription] = useState(product.description)
   const [unitPrice, setUnitPrice] = useState(formatPrice(product.price))
+  const [quantity, setQuantity] = useState(product.quantity_in_stock)
+
   const maskedInputRef = useMaskito({ options: BRLmask })
 
   return (
@@ -37,19 +39,27 @@ export function ProductDetails({ product }: ProductDetailsProps) {
             <TableCell className="flex-1">Category</TableCell>
             <TableCell>{product.category}</TableCell>
           </TableRow>
-          <TableRow className="flex justify-between">
+          <TableRow className="flex items-center justify-between">
             <TableCell className="flex-1">Unit price</TableCell>
             <TableCell>
               <Input
                 ref={maskedInputRef}
                 value={unitPrice}
                 onInput={(e) => setUnitPrice(e.currentTarget.value)}
+                className="w-36"
               />
             </TableCell>
           </TableRow>
-          <TableRow className="flex justify-between">
+          <TableRow className="flex items-center justify-between">
             <TableCell className="flex-1">Quantity in stock</TableCell>
-            <TableCell>{product.quantity_in_stock}</TableCell>
+            <TableCell>
+              <Input
+                type="number"
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className="w-24"
+              />
+            </TableCell>
           </TableRow>
         </TableBody>
       </Table>
