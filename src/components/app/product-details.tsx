@@ -23,6 +23,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useToast } from '../ui/use-toast'
+import { createProduct, updateProduct } from '@/services/productsServices'
 
 interface ProductFormProps {
   mode: 'create' | 'update'
@@ -47,43 +48,12 @@ const schema = z.object({
   categoryId: z.string().min(1, 'Selecione uma categoria'),
 })
 
-type FormValues = z.infer<typeof schema> & { price: number }
+export type ProductFormValues = z.infer<typeof schema> & { price: number }
 
 async function getCategories() {
   const response = await api('/category')
   const categories: CategoryDTO[] = await response.json()
   return categories
-}
-
-async function updateProduct(productId: string, data: FormValues) {
-  console.log(data)
-  const response = await api(`/product/${productId}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to update product')
-  }
-  return response.json()
-}
-
-async function createProduct(data: FormValues) {
-  const response = await api('/product', {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to create product')
-  }
-  return response.json()
 }
 
 export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
@@ -94,8 +64,8 @@ export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
   const mutation = useMutation({
     mutationFn:
       mode === 'update'
-        ? (data: FormValues) => updateProduct(product!.id, data)
-        : (data: FormValues) => createProduct(data),
+        ? (data: ProductFormValues) => updateProduct(product!.id, data)
+        : (data: ProductFormValues) => createProduct(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product'] })
       router.refresh()
@@ -120,7 +90,7 @@ export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<FormValues>({
+  } = useForm<ProductFormValues>({
     defaultValues:
       mode === 'update' && product
         ? {
@@ -142,16 +112,16 @@ export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
 
   const maskedInputRef = useMaskito({ options: BRLmask })
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
+  const onSubmit: SubmitHandler<ProductFormValues> = (data) => {
     const unitPriceNumber = parseFloat(
       data.unitPrice.replace('R$', '').replace(',', '.'),
     )
-    const submissionData: FormValues = {
+    const submissionData: ProductFormValues = {
       ...data,
       price: unitPriceNumber,
     }
 
-    delete (submissionData as Partial<FormValues>).unitPrice
+    delete (submissionData as Partial<ProductFormValues>).unitPrice
 
     mutation.mutate(submissionData)
   }

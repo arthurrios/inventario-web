@@ -50,14 +50,17 @@ export default async function Home() {
         </div>
         <div className="border rounded-md">
           <Table>
-            <TableHeader>
+            <TableHeader className="h-16">
               <TableRow>
                 <TableHead />
-                <TableHead>Code</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Unit Price</TableHead>
-                <TableHead>Quantity</TableHead>
+                <TableHead>Código</TableHead>
+                <TableHead>Produto</TableHead>
+                <TableHead>Categoria</TableHead>
+                <TableHead>Preço unitário</TableHead>
+                <TableHead className="text-center">
+                  Estoque (unidades)
+                </TableHead>
+                <TableHead />
               </TableRow>
             </TableHeader>
             <TableBody>

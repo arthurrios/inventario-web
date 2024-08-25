@@ -1,5 +1,6 @@
 import { CategoryDTO } from '@/app/dtos/categoryDTO'
 import { ProductDTO } from '@/app/dtos/productDTO'
+import { DeleteButton } from '@/components/app/delete-button'
 import { DetailsButton } from '@/components/app/details-button'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { api } from '@/services/api'
@@ -35,6 +36,9 @@ export async function ProductTableRow({ product }: OrderTableRowProps) {
       <TableCell>{formatPrice(product.price)}</TableCell>
       <TableCell className="w-3 text-center">
         {product.quantity_in_stock}
+      </TableCell>
+      <TableCell className="w-20">
+        <DeleteButton endpoint="/product" itemId={product.id} />
       </TableCell>
     </TableRow>
   )
