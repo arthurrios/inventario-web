@@ -8,11 +8,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ProductTableRow } from './components/product-table-row'
-import { ProductDTO } from '../dtos/productDTO'
 import { api } from '@/services/api'
 import { queryClient } from '@/lib/queryClient'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { CreateProductButton } from '@/components/app/create-product-button'
+import { ProductDTO } from '@/dtos/productDTO'
 
 export async function getProducts() {
   const response = await api('/product', {

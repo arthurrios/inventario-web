@@ -16,7 +16,6 @@ import {
   SelectValue,
 } from '../ui/select'
 import { api } from '@/services/api'
-import { CategoryDTO } from '@/app/dtos/categoryDTO'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -24,31 +23,28 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { createProduct, updateProduct } from '@/services/productsServices'
 import { toast } from 'sonner'
+import { ProductDTO } from '@/dtos/productDTO'
+import { CategoryDTO } from '@/dtos/categoryDTO'
 
 interface ProductFormProps {
   mode: 'create' | 'update'
-  product?: {
-    id: string
-    name: string
-    description: string
-    price: number
-    quantity_in_stock: number
-    category?: { id: string }
-  }
+  product?: ProductDTO
   onClose?: () => void
 }
 
 const schema = z.object({
-  name: z.string().min(3, 'Nome do produto deve ter no mínimo 3 caracteres'),
+  product_name: z
+    .string()
+    .min(3, 'Nome do produto deve ter no mínimo 3 caracteres'),
   description: z.string().min(1, 'Insira uma descrição'),
   unitPrice: z.string().min(1, 'Valor da unidade é obrigatório'),
   quantity_in_stock: z
     .number({ message: 'Digite apenas números' })
     .min(0, 'Quantidade deve ser um número positivo'),
-  categoryId: z.string().min(1, 'Selecione uma categoria'),
+  category_id: z.string().min(1, 'Selecione uma categoria'),
 })
 
-export type ProductFormValues = z.infer<typeof schema> & { price: number }
+export type ProductFormValues = z.infer<typeof schema> & { unit_price: number }
 
 async function getCategories() {
   const response = await api('/category')
@@ -63,7 +59,8 @@ export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
   const mutation = useMutation({
     mutationFn:
       mode === 'update'
-        ? (data: ProductFormValues) => updateProduct(product!.id, data)
+        ? (data: ProductFormValues) =>
+            updateProduct(product?.product_id as string, data)
         : (data: ProductFormValues) => createProduct(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product'] })
@@ -93,18 +90,18 @@ export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
     defaultValues:
       mode === 'update' && product
         ? {
-            name: product.name,
+            product_name: product.product_name,
             description: product.description,
-            unitPrice: formatPrice(product.price),
+            unitPrice: formatPrice(product.unit_price),
             quantity_in_stock: product.quantity_in_stock,
-            categoryId: product.category?.id,
+            category_id: product.category?.category_id,
           }
         : {
-            name: '',
+            product_name: '',
             description: '',
             unitPrice: formatPrice(0),
             quantity_in_stock: 0,
-            categoryId: '',
+            category_id: '',
           },
     resolver: zodResolver(schema),
   })
@@ -115,9 +112,10 @@ export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
     const unitPriceNumber = parseFloat(
       data.unitPrice.replace('R$', '').replace(',', '.'),
     )
+
     const submissionData: ProductFormValues = {
       ...data,
-      price: unitPriceNumber,
+      unit_price: unitPriceNumber,
     }
 
     delete (submissionData as Partial<ProductFormValues>).unitPrice
@@ -136,14 +134,16 @@ export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
         <div className="space-y-2">
           <Label htmlFor="name">Nome</Label>
           <Controller
-            name="name"
+            name="product_name"
             control={control}
             render={({ field }) => (
               <Input {...field} placeholder="Nome do produto" />
             )}
           />
-          {errors.name && (
-            <p className="text-red-500 text-sm">{errors.name.message}</p>
+          {errors.product_name && (
+            <p className="text-red-500 text-sm">
+              {errors.product_name.message}
+            </p>
           )}
         </div>
         <div className="space-y-2">
@@ -169,7 +169,7 @@ export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
               <TableCell className="flex-1 relative">Categoria</TableCell>
               <TableCell className="flex flex-col gap-2 items-end">
                 <Controller
-                  name="categoryId"
+                  name="category_id"
                   control={control}
                   render={({ field }) => (
                     <Select
@@ -181,23 +181,26 @@ export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
                       <SelectTrigger className="w-fit">
                         <SelectValue placeholder="Selecione a categoria">
                           {categories?.find(
-                            (category) => category.id === field.value,
-                          )?.name || 'Selecione uma categoria'}
+                            (category) => category.category_id === field.value,
+                          )?.category_name || 'Selecione uma categoria'}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {categories?.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
+                          <SelectItem
+                            key={category.category_id}
+                            value={category.category_id}
+                          >
+                            {category.category_name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   )}
                 />
-                {errors.categoryId && (
+                {errors.category_id && (
                   <p className="text-red-500 text-sm">
-                    {errors.categoryId.message}
+                    {errors.category_id.message}
                   </p>
                 )}
               </TableCell>

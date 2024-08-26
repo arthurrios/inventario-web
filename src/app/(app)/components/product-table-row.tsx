@@ -1,8 +1,8 @@
-import { CategoryDTO } from '@/app/dtos/categoryDTO'
-import { ProductDTO } from '@/app/dtos/productDTO'
 import { DeleteButton } from '@/components/app/delete-button'
 import { DetailsButton } from '@/components/app/details-button'
 import { TableCell, TableRow } from '@/components/ui/table'
+import { CategoryDTO } from '@/dtos/categoryDTO'
+import { ProductDTO } from '@/dtos/productDTO'
 import { api } from '@/services/api'
 import { formatPrice } from '@/utils/formatPrice'
 

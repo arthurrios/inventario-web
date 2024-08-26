@@ -5,6 +5,8 @@ export async function updateProduct(
   productId: string,
   data: ProductFormValues,
 ) {
+  console.log(data)
+
   const response = await api(`/product/${productId}`, {
     method: 'PUT',
     body: JSON.stringify(data),
@@ -12,6 +14,8 @@ export async function updateProduct(
       'Content-Type': 'application/json',
     },
   })
+
+  console.log(response)
 
   if (!response.ok) {
     throw new Error('Failed to update product')
