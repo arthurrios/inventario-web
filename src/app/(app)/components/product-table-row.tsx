@@ -19,7 +19,7 @@ async function getProductCategory(categoryId: string) {
 }
 
 export async function ProductTableRow({ product }: OrderTableRowProps) {
-  const category = await getProductCategory(product.categoryId)
+  const category = await getProductCategory(product.category_id)
   const productWithCategory = {
     ...product,
     category,
@@ -31,14 +31,14 @@ export async function ProductTableRow({ product }: OrderTableRowProps) {
         <DetailsButton product={productWithCategory} />
       </TableCell>
       <TableCell className="w-3">{product.code}</TableCell>
-      <TableCell>{product.name}</TableCell>
-      <TableCell>{category.name}</TableCell>
-      <TableCell>{formatPrice(product.price)}</TableCell>
+      <TableCell>{product.product_name}</TableCell>
+      <TableCell>{category.category_name}</TableCell>
+      <TableCell>{formatPrice(product.unit_price)}</TableCell>
       <TableCell className="w-3 text-center">
         {product.quantity_in_stock}
       </TableCell>
       <TableCell className="w-20">
-        <DeleteButton endpoint="/product" itemId={product.id} />
+        <DeleteButton endpoint="/product" itemId={product.product_id} />
       </TableCell>
     </TableRow>
   )

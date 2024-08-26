@@ -21,8 +21,6 @@ export async function getProducts() {
 
   const products: ProductDTO[] = await response.json()
 
-  console.log(products)
-
   return products
 }
 
@@ -63,7 +61,7 @@ export default async function ProductsPage() {
             {queryClient
               .getQueryData<ProductDTO[]>(['product'])
               ?.map((product) => (
-                <ProductTableRow key={product.id} product={product} />
+                <ProductTableRow key={product.product_id} product={product} />
               ))}
           </TableBody>
         </Table>

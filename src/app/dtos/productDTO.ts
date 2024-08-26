@@ -1,12 +1,12 @@
 import { CategoryDTO } from './categoryDTO'
 
 export interface ProductDTO {
-  id: string
+  product_id: string
   code: string
-  name: string
+  product_name: string
   description: string
-  price: number
+  unit_price: number
   quantity_in_stock: number
-  categoryId: string
+  category_id: string
   category?: CategoryDTO
 }
