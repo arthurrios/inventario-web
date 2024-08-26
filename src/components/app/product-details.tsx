@@ -122,6 +122,8 @@ export function ProductDetails({ product, onClose, mode }: ProductFormProps) {
 
     delete (submissionData as Partial<ProductFormValues>).unitPrice
 
+    // console.log(submissionData)
+
     mutation.mutate(submissionData)
   }
 
