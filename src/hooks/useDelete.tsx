@@ -21,10 +21,7 @@ export function useDelete(endpoint: string) {
           console.error('Error Response:', errorBody)
           throw new Error(`Erro ao apagar item: ${response.statusText}`)
         }
-
-        // Optionally parse the response if needed
-        // return await response.json()
-        return null // or appropriate value based on your API response
+        return response.json()
       } catch (error) {
         console.error('Request Failed:', error)
         throw error
@@ -32,7 +29,7 @@ export function useDelete(endpoint: string) {
     },
     onSuccess: () => {
       router.refresh()
-      toast.error('Item deletado com sucesso!')
+      toast.success('Item deletado com sucesso!')
     },
     onError: (error) => {
       console.log(error)

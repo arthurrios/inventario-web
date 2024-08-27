@@ -24,9 +24,15 @@ export async function updateProduct(
 }
 
 export async function createProduct(data: ProductFormValues) {
+  const fullData = {
+    ...data,
+    code: '',
+    unit_of_measure: 'UN',
+  }
+
   const response = await api('/product', {
     method: 'POST',
-    body: JSON.stringify(data),
+    body: JSON.stringify(fullData),
     headers: {
       'Content-Type': 'application/json',
     },
