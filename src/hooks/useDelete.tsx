@@ -19,7 +19,7 @@ export function useDelete(endpoint: string) {
           // Attempt to parse the response body to get more error details
           const errorBody = await response.text()
           console.error('Error Response:', errorBody)
-          throw new Error(`Erro ao apagar item: ${response.statusText}`)
+          throw new Error(`${response.status}`)
         }
         return response.json()
       } catch (error) {
@@ -33,7 +33,13 @@ export function useDelete(endpoint: string) {
     },
     onError: (error) => {
       console.log(error)
-      toast.error('Erro ao apagar item')
+      if (error.message === '409') {
+        toast.error('Item está associado a uma compra')
+
+      } else {
+        toast.error('Erro ao apagar item')
+
+      }
     },
   })
 }
