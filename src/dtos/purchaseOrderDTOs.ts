@@ -16,7 +16,11 @@ export enum OrderItemStatus {
   CANCELADO = 'Cancelado',
 }
 
-type OrderStatusString = 'Pendente' | 'Enviado' | 'Entregue' | 'Cancelado'
+export type OrderStatusString =
+  | 'Pendente'
+  | 'Enviado'
+  | 'Entregue'
+  | 'Cancelado'
 
 export type OrderItemStatusValues =
   (typeof OrderItemStatus)[keyof typeof OrderItemStatus]

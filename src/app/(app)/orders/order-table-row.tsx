@@ -1,14 +1,9 @@
 import { DetailsButton } from '@/components/app/details-button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+
 import { TableCell, TableRow } from '@/components/ui/table'
 import { PurchaseOrderDTO } from '@/dtos/purchaseOrderDTOs'
 import { truncateString } from '@/utils/truncateString'
+import { SupplierSelectStatus } from './supplier-select-status'
 
 interface OrderTableRowProps {
   order: PurchaseOrderDTO
@@ -21,24 +16,7 @@ const statusClasses: Record<string, string> = {
   Cancelado: 'bg-red-300',
 }
 
-const statusOptions = [
-  { value: 'Pendente', label: 'Pendente', className: 'bg-gray-300' },
-  { value: 'Enviado', label: 'Enviado', className: 'bg-yellow-300' },
-  { value: 'Entregue', label: 'Entregue', className: 'bg-emerald-300' },
-  { value: 'Cancelado', label: 'Cancelado', className: 'bg-red-300' },
-]
-
 export async function OrderTableRow({ order }: OrderTableRowProps) {
-  // const category = await getProductCategory(product.category_id)
-  // const productWithCategory = {
-  //   ...product,
-  //   category,
-  // }
-
-  const currentStatusOption =
-    statusOptions.find((option) => option.value === order.status) ||
-    statusOptions[0]
-
   const statusClass = statusClasses[order.status] || 'bg-gray-300'
 
   return (
@@ -58,37 +36,14 @@ export async function OrderTableRow({ order }: OrderTableRowProps) {
         })}
       </TableCell>
       <TableCell className="justify-center">
-        {order.status === 'Entregue' ? (
-          <div className="flex items-center justify-center">
-            <div className={`size-2 rounded-full mr-3 ${statusClass}`} />
-            {order.status}
-          </div>
-        ) : (
-          <Select defaultValue={order.status}>
-            <SelectTrigger className="w-32">
-              <SelectValue>
-                <div className="flex items-center">
-                  <div
-                    className={`size-2 rounded-full mr-2 ${currentStatusOption.className}`}
-                  />
-                  {currentStatusOption.label}
-                </div>
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {statusOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  <div className="flex items-center">
-                    <div
-                      className={`size-2 rounded-full mr-2 ${option.className}`}
-                    />
-                    {option.label}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+        {/* {order.status === 'Entregue' ? ( */}
+        <div className="flex items-center justify-center">
+          <div className={`size-2 rounded-full mr-3 ${statusClass}`} />
+          {order.status}
+        </div>
+        {/* ) : (
+           <SupplierSelectStatus orderStatus={order.status} />
+         )} */}
       </TableCell>
       <TableCell className="text-right">
         {new Intl.DateTimeFormat('pt-BR', {
