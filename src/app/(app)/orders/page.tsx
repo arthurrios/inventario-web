@@ -1,5 +1,6 @@
 import {
   OrderItemStatus,
+  OrderItemStatusValues,
   PurchaseOrderDTO,
   PurchaseOrderTableData,
 } from '@/dtos/purchaseOrderDTOs'
@@ -51,12 +52,7 @@ export default async function OrdersPage() {
           )?.supplier_name || '',
         status: OrderItemStatus[
           order.status as keyof typeof OrderItemStatus
-        ] as string,
-        order_date: new Intl.DateTimeFormat('pt-BR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        }).format(new Date(order.order_date)),
+        ] as OrderItemStatusValues,
         purchase_value: purchaseValue,
       }
     },
@@ -78,8 +74,8 @@ export default async function OrdersPage() {
               <TableHead>Código</TableHead>
               <TableHead>Fornecedor</TableHead>
               <TableHead>Valor</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Data do pedido</TableHead>
+              <TableHead className="w-40 text-center">Status</TableHead>
+              <TableHead className="text-right w-48">Data do pedido</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

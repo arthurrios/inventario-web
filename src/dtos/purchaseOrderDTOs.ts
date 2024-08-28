@@ -15,20 +15,26 @@ export enum OrderItemStatus {
   ENTREGUE = 'Entregue',
   CANCELADO = 'Cancelado',
 }
+
+type OrderStatusString = 'Pendente' | 'Enviado' | 'Entregue' | 'Cancelado'
+
+export type OrderItemStatusValues =
+  (typeof OrderItemStatus)[keyof typeof OrderItemStatus]
+
 export interface PurchaseOrderDTO {
   purchase_order_id: string
   order_date: Date
   supplier_id: string
-  status: keyof typeof OrderItemStatus
+  status: OrderStatusString
   purchaseOrderDetails: PurchaseOrderDetailDTO[]
   purchase_value: number
 }
 
 export interface PurchaseOrderTableData {
   purchase_order_id: string
-  order_date: string // Formatted date as a string
+  order_date: Date // Formatted date as a string
   supplier_id: string
-  status: string
+  status: OrderStatusString
   purchase_value: number
   purchaseOrderDetails: PurchaseOrderDetailDTO[]
 }
