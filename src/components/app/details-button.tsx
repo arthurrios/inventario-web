@@ -7,6 +7,7 @@ import { ProductDetails } from './product-details'
 import { useState } from 'react'
 import { ProductDTO } from '@/dtos/productDTO'
 import { PurchaseOrderDTO } from '@/dtos/purchaseOrderDTOs'
+import { OrderDetails } from './order-details'
 
 export interface DetailsButtonProps {
   product?: ProductDTO
@@ -31,9 +32,13 @@ export function DetailsButton({ product, order }: DetailsButtonProps) {
             mode="update"
           />
         )}
-        {/* {order && (
-
-        )} */}
+        {order && (
+          <OrderDetails
+            order={order}
+            onClose={handleCloseDialog}
+            mode="update"
+          />
+        )}
       </Dialog>
     </Button>
   )

@@ -26,7 +26,6 @@ export async function getProducts() {
 
 export default async function ProductsPage() {
   const session = await auth()
-  // const products = await getProducts()
 
   if (!session) {
     redirect('/auth')

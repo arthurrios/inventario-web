@@ -1,7 +1,7 @@
 export interface PurchaseOrderDetailDTO {
   purchase_order_detail_id: string
   purchase_order_id: string
-  product_id: string
+  product_id: string | undefined
   quantity: number
   unit_price: number
   status: string

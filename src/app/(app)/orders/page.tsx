@@ -58,8 +58,6 @@ export default async function OrdersPage() {
     },
   )
 
-  console.log(ordersTableData)
-
   return (
     <div>
       <div className="flex justify-between items-center">

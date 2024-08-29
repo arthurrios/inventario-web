@@ -3,13 +3,13 @@ import { DetailsButton } from '@/components/app/details-button'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { PurchaseOrderDTO } from '@/dtos/purchaseOrderDTOs'
 import { truncateString } from '@/utils/truncateString'
-import { SupplierSelectStatus } from './supplier-select-status'
+// import { SupplierSelectStatus } from './supplier-select-status'
 
 interface OrderTableRowProps {
   order: PurchaseOrderDTO
 }
 
-const statusClasses: Record<string, string> = {
+export const statusClasses: Record<string, string> = {
   Pendente: 'bg-gray-300',
   Enviado: 'bg-yellow-300',
   Entregue: 'bg-emerald-300',
