@@ -18,6 +18,9 @@ import { Controller, useForm } from 'react-hook-form'
 import { Input } from '../ui/input'
 import { useState } from 'react'
 import { Button } from '../ui/button'
+import { X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface OrderFormProps {
   mode?: 'create' | 'update'
@@ -31,7 +34,11 @@ type FormValues = {
 
 export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
   const { products } = useProducts()
+  const queryClient = useQueryClient()  
+
   const statusClass = statusClasses[order.status] || 'bg-gray-300'
+
+  const router = useRouter()
 
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const [localQuantities, setLocalQuantities] = useState<
@@ -66,6 +73,9 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
     console.log('Updated quantities:', data)
     // Perform API request to update quantities
     // Example: api.updateOrderQuantities(order.purchase_order_id, data)
+    queryClient.invalidateQueries({ queryKey: ['suppliers'] })
+    queryClient.invalidateQueries({ queryKey: ['orders'] })
+    router.refresh()
   })
 
   const handleQuantityChange = (itemId: string, value: number) => {
@@ -74,6 +84,22 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
       [itemId]: value,
     }))
     setValue(`quantity-${itemId}`, value)
+  }
+
+  const handleDelete = (itemId: string) => {
+    setLocalQuantities((prev) => {
+      const newQuantities = { ...prev }
+      delete newQuantities[itemId]
+      return newQuantities
+    })
+    setValue(`quantity-${itemId}`, 0)
+  }
+
+  const handleCancel = () => {
+    queryClient.invalidateQueries({ queryKey: ['orders'] })
+    queryClient.invalidateQueries({ queryKey: ['suppliers'] })
+    router.refresh()
+    onClose && onClose()
   }
 
   return (
@@ -115,7 +141,7 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {orderItems.map((item) => (
+          {orderItems.filter(item => localQuantities[item.purchase_order_detail_id] !== undefined).map((item) => (
             <TableRow key={item.purchase_order_detail_id}>
               <TableCell>{item.product_id}</TableCell>
               <TableCell className="text-center">
@@ -165,6 +191,17 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
               <TableCell className="text-center">
                 {formatPrice(item.unit_price)}
               </TableCell>
+              {mode === 'update' && (
+                <TableCell>
+                  <Button
+                    variant="destructive"
+                    className="size-8 p-0"
+                    onClick={() => handleDelete(item.purchase_order_detail_id)}
+                  >
+                    <X size={16} />
+                  </Button>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
@@ -175,7 +212,7 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
           <Button className="w-full" onClick={onSubmit}>
             Salvar
           </Button>
-          <Button variant={'destructive'} className="bg-destructive w-full">
+          <Button variant={'destructive'} className="bg-destructive w-full" onClick={handleCancel}>
             Cancelar
           </Button>
         </div>

@@ -1,19 +1,19 @@
+import { auth } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 import {
-  OrderItemStatus,
-  OrderItemStatusValues,
-  PurchaseOrderDTO,
-  PurchaseOrderTableData,
-} from '@/dtos/purchaseOrderDTOs'
-import { api } from '@/services/api'
-import { SupplierDTO } from '@/dtos/supplierDTO'
-import {
+  Table,
+  TableBody,
+  TableHead,
   TableHeader,
   TableRow,
-  TableHead,
-  TableBody,
-  Table,
 } from '@/components/ui/table'
 import { OrderTableRow } from './order-table-row'
+import { api } from '@/services/api'
+import { queryClient } from '@/lib/queryClient'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { PurchaseOrderDTO, PurchaseOrderTableData, OrderItemStatus, OrderItemStatusValues } from '@/dtos/purchaseOrderDTOs'
+import { SupplierDTO } from '@/dtos/supplierDTO'
+import { CreateOrderButton } from '@/components/app/create-order-button'
 
 export async function getOrders() {
   const response = await api('/purchase-order', {
@@ -21,24 +21,41 @@ export async function getOrders() {
   })
 
   const purchaseOrders: PurchaseOrderDTO[] = await response.json()
-
   return purchaseOrders
 }
+
 export async function getSuppliers() {
   const response = await api('/supplier', {
     method: 'GET',
   })
 
   const suppliers: SupplierDTO[] = await response.json()
-
   return suppliers
 }
 
 export default async function OrdersPage() {
-  const purchaseOrders = await getOrders()
-  const suppliers = await getSuppliers()
+  const session = await auth()
 
-  const ordersTableData: PurchaseOrderTableData[] = purchaseOrders.map(
+  if (!session) {
+    redirect('/auth')
+  }
+
+  await queryClient.prefetchQuery({
+    queryKey: ['orders'],
+    queryFn: getOrders,
+  })
+
+  await queryClient.prefetchQuery({
+    queryKey: ['suppliers'],
+    queryFn: getSuppliers,
+  })
+
+  const dehydratedState = dehydrate(queryClient)
+
+  const purchaseOrders = queryClient.getQueryData<PurchaseOrderDTO[]>(['orders'])
+  const suppliers = queryClient.getQueryData<SupplierDTO[]>(['suppliers'])
+
+  const ordersTableData: PurchaseOrderTableData[] = purchaseOrders?.map(
     (order) => {
       const purchaseValue = order.purchaseOrderDetails.reduce((acc, curr) => {
         return acc + curr.quantity * curr.unit_price
@@ -47,7 +64,7 @@ export default async function OrdersPage() {
       return {
         ...order,
         supplier_id:
-          suppliers.find(
+          suppliers?.find(
             (supplier) => supplier.supplier_id === order.supplier_id,
           )?.supplier_name || '',
         status: OrderItemStatus[
@@ -56,13 +73,13 @@ export default async function OrdersPage() {
         purchase_value: purchaseValue,
       }
     },
-  )
+  ) || []
 
   return (
-    <div>
+    <HydrationBoundary state={dehydratedState}>
       <div className="flex justify-between items-center">
         <h1 className="my-6 font-semibold text-xl">Pedidos</h1>
-        {/* <CreateProductButton /> */}
+        <CreateOrderButton />
       </div>
       <div className="border rounded-md">
         <Table>
@@ -77,14 +94,12 @@ export default async function OrdersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {ordersTableData.map((order) => {
-              return (
-                <OrderTableRow key={order.purchase_order_id} order={order} />
-              )
-            })}
+            {ordersTableData.map((order) => (
+              <OrderTableRow key={order.purchase_order_id} order={order} />
+            ))}
           </TableBody>
         </Table>
       </div>
-    </div>
+    </HydrationBoundary>
   )
 }
