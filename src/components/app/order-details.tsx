@@ -14,26 +14,67 @@ import {
 } from '../ui/table'
 import { useProducts } from '@/contexts/products-context'
 import { formatPrice } from '@/utils/formatPrice'
+import { Controller, useForm } from 'react-hook-form'
+import { Input } from '../ui/input'
+import { useState } from 'react'
+import { Button } from '../ui/button'
 
 interface OrderFormProps {
-  mode: 'create' | 'update'
+  mode?: 'create' | 'update'
   order: PurchaseOrderDTO
   onClose?: () => void
+}
+
+type FormValues = {
+  [key: string]: number
 }
 
 export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
   const { products } = useProducts()
   const statusClass = statusClasses[order.status] || 'bg-gray-300'
 
-  const orderItems: PurchaseOrderDetailDTO[] = order.purchaseOrderDetails.map(
-    (product) => {
-      return {
-        ...product,
-        product_id: products?.find((p) => p.product_id === product.product_id)
-          ?.product_name,
-      }
-    },
+  const [editingItemId, setEditingItemId] = useState<string | null>(null)
+  const [localQuantities, setLocalQuantities] = useState<
+    Record<string, number>
+  >(
+    order.purchaseOrderDetails.reduce(
+      (acc, item) => {
+        acc[item.purchase_order_detail_id] = item.quantity
+        return acc
+      },
+      {} as Record<string, number>,
+    ),
   )
+
+  const { control, setValue, handleSubmit, watch } = useForm<FormValues>({
+    defaultValues: order.purchaseOrderDetails.reduce((acc, item) => {
+      acc[`quantity-${item.purchase_order_detail_id}`] = item.quantity
+      return acc
+    }, {} as FormValues),
+  })
+
+  const orderItems: PurchaseOrderDetailDTO[] = order.purchaseOrderDetails.map(
+    (product) => ({
+      ...product,
+      product_id: products?.find((p) => p.product_id === product.product_id)
+        ?.product_name,
+    }),
+  )
+
+  const onSubmit = handleSubmit((data) => {
+    // Handle form submission logic, e.g., sending updated data to the server
+    console.log('Updated quantities:', data)
+    // Perform API request to update quantities
+    // Example: api.updateOrderQuantities(order.purchase_order_id, data)
+  })
+
+  const handleQuantityChange = (itemId: string, value: number) => {
+    setLocalQuantities((prev) => ({
+      ...prev,
+      [itemId]: value,
+    }))
+    setValue(`quantity-${itemId}`, value)
+  }
 
   return (
     <DialogContent>
@@ -64,7 +105,7 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
           </div>
         </div>
       </div>
-      {/* <h1 className="font-bold text-lg">Itens</h1> */}
+
       <Table>
         <TableHeader>
           <TableRow>
@@ -77,7 +118,50 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
           {orderItems.map((item) => (
             <TableRow key={item.purchase_order_detail_id}>
               <TableCell>{item.product_id}</TableCell>
-              <TableCell className="text-center">{item.quantity}</TableCell>
+              <TableCell className="text-center">
+                {editingItemId === item.purchase_order_detail_id &&
+                mode === 'update' ? (
+                  <Controller
+                    name={`quantity-${item.purchase_order_detail_id}`}
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="number"
+                        min={1}
+                        className="w-16 text-center"
+                        onChange={(e) => {
+                          const value = parseFloat(e.currentTarget.value)
+                          handleQuantityChange(
+                            item.purchase_order_detail_id,
+                            value,
+                          )
+                        }}
+                        onBlur={() => {
+                          setEditingItemId(null)
+                        }}
+                        value={
+                          localQuantities[item.purchase_order_detail_id] ??
+                          field.value
+                        } // Ensure the value is updated
+                      />
+                    )}
+                    rules={{ min: 1 }}
+                  />
+                ) : (
+                  <span
+                    onClick={() => {
+                      if (mode === 'update') {
+                        setEditingItemId(item.purchase_order_detail_id)
+                      }
+                    }}
+                    className="cursor-pointer px-6 py-2"
+                  >
+                    {localQuantities[item.purchase_order_detail_id] ??
+                      item.quantity}
+                  </span>
+                )}
+              </TableCell>
               <TableCell className="text-center">
                 {formatPrice(item.unit_price)}
               </TableCell>
@@ -85,6 +169,17 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
           ))}
         </TableBody>
       </Table>
+
+      {mode === 'update' && (
+        <div className='space-y-2'>
+          <Button className="w-full" onClick={onSubmit}>
+            Salvar
+          </Button>
+          <Button variant={'destructive'} className="bg-destructive w-full">
+            Cancelar
+          </Button>
+        </div>
+      )}
     </DialogContent>
   )
 }

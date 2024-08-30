@@ -19,6 +19,8 @@ export function DetailsButton({ product, order }: DetailsButtonProps) {
 
   const handleCloseDialog = () => setIsDialogOpen(false)
 
+  const canUpdateOrder = order?.status === 'Pendente'
+
   return (
     <Button variant={'outline'} className="size-8 p-0">
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -36,7 +38,7 @@ export function DetailsButton({ product, order }: DetailsButtonProps) {
           <OrderDetails
             order={order}
             onClose={handleCloseDialog}
-            mode="update"
+            mode={canUpdateOrder ? 'update' : undefined}
           />
         )}
       </Dialog>

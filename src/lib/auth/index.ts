@@ -1,4 +1,4 @@
-// import { api } from '@/services/api'
+import { api } from '@/services/api'
 import NextAuth, { NextAuthConfig } from 'next-auth'
 import GoogleProvider, { GoogleProfile } from 'next-auth/providers/google'
 
@@ -22,8 +22,6 @@ const authOptions: NextAuthConfig = {
 
   callbacks: {
     async session({ session, user }) {
-      console.log(user)
-
       return {
         ...session,
         user: {
@@ -33,6 +31,8 @@ const authOptions: NextAuthConfig = {
       }
     },
     // async signIn({ user }) {
+    //   console.log('User signed in:', user)
+
     //   try {
     //     const response = await api('/user', {
     //       method: 'POST',
@@ -40,12 +40,14 @@ const authOptions: NextAuthConfig = {
     //         'Content-Type': 'application/json',
     //       },
     //       body: JSON.stringify({
-    //         id: user.id,
+    //         googleId: user.id,
     //         name: user.name,
     //         email: user.email,
-    //         avatar_url: user.avatar_url,
+    //         profilePicture: user.avatar_url,
     //       }),
     //     })
+
+    //     console.log(response)
 
     //     if (response.ok) {
     //       return true
