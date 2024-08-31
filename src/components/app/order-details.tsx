@@ -21,11 +21,14 @@ import { Button } from '../ui/button'
 import { X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
+import { SupplierDTO } from '@/dtos/supplierDTO'
+import { useSuppliers } from '@/contexts/suppliers-context'
 
 interface OrderFormProps {
   mode?: 'create' | 'update'
   order: PurchaseOrderDTO
   onClose?: () => void
+  suppliers: SupplierDTO[] // Add suppliers to props
 }
 
 type FormValues = {
@@ -34,6 +37,7 @@ type FormValues = {
 
 export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
   const { products } = useProducts()
+  const { suppliers } = useSuppliers()
   const queryClient = useQueryClient()
 
   const statusClass = statusClasses[order.status] || 'bg-gray-300'
@@ -68,13 +72,30 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
     }),
   )
 
+  const supplierId = suppliers?.find(
+    (supplier) => supplier.supplier_name === order.supplier_id,
+  )?.supplier_id
+
   const onSubmit = handleSubmit((data) => {
-    // Handle form submission logic, e.g., sending updated data to the server
-    console.log('Updated quantities:', data)
-    // Perform API request to update quantities
-    // Example: api.updateOrderQuantities(order.purchase_order_id, data)
-    queryClient.invalidateQueries({ queryKey: ['suppliers'] })
+    const updatedOrder = {
+      purchase_order_id: order.purchase_order_id,
+      order_date: new Date(), // Use the current date or an appropriate value
+      supplier_id: supplierId || order.supplier_id, // Map back to supplier_id
+      status: 'PENDENTE', // Assuming status remains 'PENDENTE' or change as needed
+      items: order.purchaseOrderDetails.map((item) => ({
+        product_id: item.product_id,
+        quantity:
+          data[`quantity-${item.purchase_order_detail_id}`] || item.quantity,
+        unit_price: item.unit_price,
+      })),
+    }
+
+    console.log('Updated order:', updatedOrder)
+    // Perform API request to update the order
+    // Example: api.updateOrder(updatedOrder)
+
     queryClient.invalidateQueries({ queryKey: ['orders'] })
+    queryClient.invalidateQueries({ queryKey: ['suppliers'] })
     router.refresh()
   })
 
