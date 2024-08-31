@@ -35,10 +35,8 @@ export function useDelete(endpoint: string) {
       console.log(error)
       if (error.message === '409') {
         toast.error('Item está associado a uma compra')
-
       } else {
         toast.error('Erro ao apagar item')
-
       }
     },
   })

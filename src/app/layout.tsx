@@ -7,6 +7,8 @@ import { twMerge } from 'tailwind-merge'
 import { QueryClientWrapper } from '@/components/query-client-wrapper'
 import { Toaster } from '@/components/ui/sonner'
 import { ProductsProvider } from '@/contexts/products-context'
+import { SuppliersProvider } from '@/contexts/suppliers-context'
+import { OrdersProvider } from '@/contexts/orders-context'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -27,7 +29,11 @@ export default async function RootLayout({
       <body className={twMerge(inter.className, 'bg-black')}>
         <SessionProvider basePath={BASE_PATH} session={session}>
           <QueryClientWrapper>
-            <ProductsProvider>{children}</ProductsProvider>
+            <SuppliersProvider>
+              <OrdersProvider>
+                <ProductsProvider>{children}</ProductsProvider>
+              </OrdersProvider>
+            </SuppliersProvider>
           </QueryClientWrapper>
         </SessionProvider>
         <Toaster richColors />

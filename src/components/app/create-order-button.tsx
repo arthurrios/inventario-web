@@ -3,8 +3,8 @@
 import { Plus } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Dialog, DialogTrigger } from '../ui/dialog'
-import { ProductDetails } from './product-details'
 import { useState } from 'react'
+import { CreateOrderDialog } from './create-order-dialog'
 
 export function CreateOrderButton() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -19,6 +19,7 @@ export function CreateOrderButton() {
           <Plus size={16} />
         </Button>
       </DialogTrigger>
+      <CreateOrderDialog onClose={handleCloseDialog} />
     </Dialog>
   )
 }

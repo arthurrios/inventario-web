@@ -11,7 +11,12 @@ import { OrderTableRow } from './order-table-row'
 import { api } from '@/services/api'
 import { queryClient } from '@/lib/queryClient'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { PurchaseOrderDTO, PurchaseOrderTableData, OrderItemStatus, OrderItemStatusValues } from '@/dtos/purchaseOrderDTOs'
+import {
+  PurchaseOrderDTO,
+  PurchaseOrderTableData,
+  OrderItemStatus,
+  OrderItemStatusValues,
+} from '@/dtos/purchaseOrderDTOs'
 import { SupplierDTO } from '@/dtos/supplierDTO'
 import { CreateOrderButton } from '@/components/app/create-order-button'
 
@@ -52,11 +57,13 @@ export default async function OrdersPage() {
 
   const dehydratedState = dehydrate(queryClient)
 
-  const purchaseOrders = queryClient.getQueryData<PurchaseOrderDTO[]>(['orders'])
+  const purchaseOrders = queryClient.getQueryData<PurchaseOrderDTO[]>([
+    'orders',
+  ])
   const suppliers = queryClient.getQueryData<SupplierDTO[]>(['suppliers'])
 
-  const ordersTableData: PurchaseOrderTableData[] = purchaseOrders?.map(
-    (order) => {
+  const ordersTableData: PurchaseOrderTableData[] =
+    purchaseOrders?.map((order) => {
       const purchaseValue = order.purchaseOrderDetails.reduce((acc, curr) => {
         return acc + curr.quantity * curr.unit_price
       }, 0)
@@ -72,8 +79,7 @@ export default async function OrdersPage() {
         ] as OrderItemStatusValues,
         purchase_value: purchaseValue,
       }
-    },
-  ) || []
+    }) || []
 
   return (
     <HydrationBoundary state={dehydratedState}>

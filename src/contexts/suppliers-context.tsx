@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query'
 import { SupplierDTO } from '@/dtos/supplierDTO'
 import { getSuppliers } from '@/app/(app)/orders/page'
 
-
 interface SuppliersContextProps {
   suppliers: SupplierDTO[] | undefined
   isLoading: boolean

@@ -40,7 +40,7 @@ export default async function ProductsPage() {
   return (
     <HydrationBoundary state={dehydratedState}>
       <div className="flex justify-between items-center">
-        <h1 className="my-6 font-semibold text-xl">Products</h1>
+        <h1 className="my-6 font-semibold text-xl">Produtos</h1>
         <CreateProductButton />
       </div>
       <div className="border rounded-md">

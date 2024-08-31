@@ -34,7 +34,7 @@ type FormValues = {
 
 export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
   const { products } = useProducts()
-  const queryClient = useQueryClient()  
+  const queryClient = useQueryClient()
 
   const statusClass = statusClasses[order.status] || 'bg-gray-300'
 
@@ -53,7 +53,7 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
     ),
   )
 
-  const { control, setValue, handleSubmit, watch } = useForm<FormValues>({
+  const { control, setValue, handleSubmit } = useForm<FormValues>({
     defaultValues: order.purchaseOrderDetails.reduce((acc, item) => {
       acc[`quantity-${item.purchase_order_detail_id}`] = item.quantity
       return acc
@@ -141,78 +141,89 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {orderItems.filter(item => localQuantities[item.purchase_order_detail_id] !== undefined).map((item) => (
-            <TableRow key={item.purchase_order_detail_id}>
-              <TableCell>{item.product_id}</TableCell>
-              <TableCell className="text-center">
-                {editingItemId === item.purchase_order_detail_id &&
-                mode === 'update' ? (
-                  <Controller
-                    name={`quantity-${item.purchase_order_detail_id}`}
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        type="number"
-                        min={1}
-                        className="w-16 text-center"
-                        onChange={(e) => {
-                          const value = parseFloat(e.currentTarget.value)
-                          handleQuantityChange(
-                            item.purchase_order_detail_id,
-                            value,
-                          )
-                        }}
-                        onBlur={() => {
-                          setEditingItemId(null)
-                        }}
-                        value={
-                          localQuantities[item.purchase_order_detail_id] ??
-                          field.value
-                        } // Ensure the value is updated
-                      />
-                    )}
-                    rules={{ min: 1 }}
-                  />
-                ) : (
-                  <span
-                    onClick={() => {
-                      if (mode === 'update') {
-                        setEditingItemId(item.purchase_order_detail_id)
-                      }
-                    }}
-                    className="cursor-pointer px-6 py-2"
-                  >
-                    {localQuantities[item.purchase_order_detail_id] ??
-                      item.quantity}
-                  </span>
-                )}
-              </TableCell>
-              <TableCell className="text-center">
-                {formatPrice(item.unit_price)}
-              </TableCell>
-              {mode === 'update' && (
-                <TableCell>
-                  <Button
-                    variant="destructive"
-                    className="size-8 p-0"
-                    onClick={() => handleDelete(item.purchase_order_detail_id)}
-                  >
-                    <X size={16} />
-                  </Button>
+          {orderItems
+            .filter(
+              (item) =>
+                localQuantities[item.purchase_order_detail_id] !== undefined,
+            )
+            .map((item) => (
+              <TableRow key={item.purchase_order_detail_id}>
+                <TableCell>{item.product_id}</TableCell>
+                <TableCell className="text-center">
+                  {editingItemId === item.purchase_order_detail_id &&
+                  mode === 'update' ? (
+                    <Controller
+                      name={`quantity-${item.purchase_order_detail_id}`}
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          type="number"
+                          min={1}
+                          className="w-16 text-center"
+                          onChange={(e) => {
+                            const value = parseFloat(e.currentTarget.value)
+                            handleQuantityChange(
+                              item.purchase_order_detail_id,
+                              value,
+                            )
+                          }}
+                          onBlur={() => {
+                            setEditingItemId(null)
+                          }}
+                          value={
+                            localQuantities[item.purchase_order_detail_id] ??
+                            field.value
+                          } // Ensure the value is updated
+                        />
+                      )}
+                      rules={{ min: 1 }}
+                    />
+                  ) : (
+                    <span
+                      onClick={() => {
+                        if (mode === 'update') {
+                          setEditingItemId(item.purchase_order_detail_id)
+                        }
+                      }}
+                      className="cursor-pointer px-6 py-2"
+                    >
+                      {localQuantities[item.purchase_order_detail_id] ??
+                        item.quantity}
+                    </span>
+                  )}
                 </TableCell>
-              )}
-            </TableRow>
-          ))}
+                <TableCell className="text-center">
+                  {formatPrice(item.unit_price)}
+                </TableCell>
+                {mode === 'update' && (
+                  <TableCell>
+                    <Button
+                      variant="destructive"
+                      className="size-8 p-0"
+                      onClick={() =>
+                        handleDelete(item.purchase_order_detail_id)
+                      }
+                    >
+                      <X size={16} />
+                    </Button>
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
 
       {mode === 'update' && (
-        <div className='space-y-2'>
+        <div className="space-y-2">
           <Button className="w-full" onClick={onSubmit}>
             Salvar
           </Button>
-          <Button variant={'destructive'} className="bg-destructive w-full" onClick={handleCancel}>
+          <Button
+            variant={'destructive'}
+            className="bg-destructive w-full"
+            onClick={handleCancel}
+          >
             Cancelar
           </Button>
         </div>

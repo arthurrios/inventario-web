@@ -5,15 +5,12 @@ import { useQuery } from '@tanstack/react-query'
 import { PurchaseOrderDTO } from '@/dtos/purchaseOrderDTOs'
 import { getOrders } from '@/app/(app)/orders/page'
 
-
 interface OrdersContextProps {
   orders: PurchaseOrderDTO[] | undefined
   isLoading: boolean
 }
 
-const OrdersContext = createContext<OrdersContextProps | undefined>(
-  undefined,
-)
+const OrdersContext = createContext<OrdersContextProps | undefined>(undefined)
 
 export function OrdersProvider({ children }: { children: ReactNode }) {
   const { data: orders, isLoading } = useQuery({
