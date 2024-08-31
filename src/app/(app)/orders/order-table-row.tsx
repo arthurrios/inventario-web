@@ -1,6 +1,7 @@
 import { DetailsButton } from '@/components/app/details-button'
 
 import { TableCell, TableRow } from '@/components/ui/table'
+import { ProductDTO } from '@/dtos/productDTO'
 import { PurchaseOrderDTO } from '@/dtos/purchaseOrderDTOs'
 import { truncateString } from '@/utils/truncateString'
 // import { SupplierSelectStatus } from './supplier-select-status'
