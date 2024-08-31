@@ -3,7 +3,7 @@
 import React, { createContext, useContext, ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { SupplierDTO } from '@/dtos/supplierDTO'
-import { getSuppliers } from '@/app/(app)/orders/page'
+import { api } from '@/services/api'
 
 interface SuppliersContextProps {
   suppliers: SupplierDTO[] | undefined
@@ -33,4 +33,13 @@ export function useSuppliers() {
     throw new Error('useSuppliers must be used within a SuppliersProvider')
   }
   return context
+}
+
+async function getSuppliers() {
+  const response = await api('/supplier', {
+    method: 'GET',
+  })
+
+  const suppliers: SupplierDTO[] = await response.json()
+  return suppliers
 }

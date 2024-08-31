@@ -20,7 +20,7 @@ import {
 import { SupplierDTO } from '@/dtos/supplierDTO'
 import { CreateOrderButton } from '@/components/app/create-order-button'
 
-export async function getOrders() {
+async function getOrders() {
   const response = await api('/purchase-order', {
     method: 'GET',
   })
@@ -29,7 +29,7 @@ export async function getOrders() {
   return purchaseOrders
 }
 
-export async function getSuppliers() {
+async function getSuppliers() {
   const response = await api('/supplier', {
     method: 'GET',
   })

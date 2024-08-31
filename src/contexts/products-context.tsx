@@ -2,8 +2,8 @@
 
 import React, { createContext, useContext, ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { getProducts } from '@/app/(app)/page'
 import { ProductDTO } from '@/dtos/productDTO'
+import { api } from '@/services/api'
 
 interface ProductsContextProps {
   products: ProductDTO[] | undefined
@@ -33,4 +33,14 @@ export function useProducts() {
     throw new Error('useProducts must be used within a ProductsProvider')
   }
   return context
+}
+
+async function getProducts() {
+  const response = await api('/product', {
+    method: 'GET',
+  })
+
+  const products: ProductDTO[] = await response.json()
+
+  return products
 }

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { PurchaseOrderDTO } from '@/dtos/purchaseOrderDTOs'
-import { getOrders } from '@/app/(app)/orders/page'
+import { api } from '@/services/api'
 
 interface OrdersContextProps {
   orders: PurchaseOrderDTO[] | undefined
@@ -31,4 +31,13 @@ export function useOrders() {
     throw new Error('useOrders must be used within a OrdersProvider')
   }
   return context
+}
+
+async function getOrders() {
+  const response = await api('/purchase-order', {
+    method: 'GET',
+  })
+
+  const purchaseOrders: PurchaseOrderDTO[] = await response.json()
+  return purchaseOrders
 }

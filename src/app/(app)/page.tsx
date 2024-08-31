@@ -14,7 +14,7 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { CreateProductButton } from '@/components/app/create-product-button'
 import { ProductDTO } from '@/dtos/productDTO'
 
-export async function getProducts() {
+async function getProducts() {
   const response = await api('/product', {
     method: 'GET',
   })
