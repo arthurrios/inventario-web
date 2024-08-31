@@ -20,8 +20,10 @@ import { useState } from 'react'
 import { Button } from '../ui/button'
 import { X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSuppliers } from '@/contexts/suppliers-context'
+import { api } from '@/services/api'
+import { toast } from 'sonner'
 
 interface OrderFormProps {
   mode?: 'create' | 'update'
@@ -31,6 +33,18 @@ interface OrderFormProps {
 
 type FormValues = {
   [key: string]: number
+}
+
+interface UpdateOrderResponse {
+  purchase_order_id: string
+  order_date: Date
+  supplier_id: string
+  status: string
+  purchaseOrderDetails: {
+    product_id: string | undefined
+    quantity: number
+    unit_price: number
+  }[]
 }
 
 export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
@@ -74,27 +88,47 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
     (supplier) => supplier.supplier_name === order.supplier_id,
   )?.supplier_id
 
+  const updateOrder = async (
+    updatedOrder: UpdateOrderResponse,
+  ): Promise<Response> => {
+    return api(`/purchase-order/${updatedOrder.purchase_order_id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updatedOrder),
+    })
+  }
+
+  const mutation = useMutation<Response, Error, UpdateOrderResponse>({
+    mutationFn: updateOrder,
+    onSuccess: () => {
+      toast.success('Pedido atualizado com sucesso!')
+
+      queryClient.invalidateQueries({ queryKey: ['order'] })
+      queryClient.invalidateQueries({ queryKey: ['supplier'] })
+      router.refresh()
+      if (onClose) onClose()
+    },
+    onError: (error) => {
+      toast.error('Erro ao atualizar pedido!')
+
+      console.error('Failed to update order:', error)
+    },
+  })
+
   const onSubmit = handleSubmit((data) => {
-    const updatedOrder = {
+    const updatedOrder: UpdateOrderResponse = {
       purchase_order_id: order.purchase_order_id,
-      order_date: new Date(), // Use the current date or an appropriate value
-      supplier_id: supplierId || order.supplier_id, // Map back to supplier_id
-      status: 'PENDENTE', // Assuming status remains 'PENDENTE' or change as needed
-      items: order.purchaseOrderDetails.map((item) => ({
+      order_date: new Date(),
+      supplier_id: supplierId || order.supplier_id,
+      status: 'PENDENTE',
+      purchaseOrderDetails: order.purchaseOrderDetails.map((item) => ({
         product_id: item.product_id,
         quantity:
           data[`quantity-${item.purchase_order_detail_id}`] || item.quantity,
-        unit_price: item.unit_price,
+        unit_price: Number(item.unit_price),
       })),
     }
 
-    console.log('Updated order:', updatedOrder)
-    // Perform API request to update the order
-    // Example: api.updateOrder(updatedOrder)
-
-    queryClient.invalidateQueries({ queryKey: ['order'] })
-    queryClient.invalidateQueries({ queryKey: ['supplier'] })
-    router.refresh()
+    mutation.mutate(updatedOrder)
   })
 
   const handleQuantityChange = (itemId: string, value: number) => {
