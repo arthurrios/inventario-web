@@ -13,11 +13,10 @@ interface PurchaseOrderDetailDTO {
 }
 
 interface PurchaseOrderDTO {
-  purchase_order_id: string
-  date: Date
+  order_date: Date
   supplier_id: string
   status: string
-  items: PurchaseOrderDetailDTO[]
+  purchaseOrderDetails: PurchaseOrderDetailDTO[]
 }
 
 const API_ENDPOINT = '/purchase-order'

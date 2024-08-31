@@ -22,9 +22,10 @@ import { useSuppliers } from '@/contexts/suppliers-context'
 import { useProducts } from '@/contexts/products-context'
 import { useEffect, useState } from 'react'
 import { Input } from '../ui/input'
-import { v4 as uuidv4 } from 'uuid'
 import { useCreatePurchaseOrder } from '@/hooks/useCreateProductOrder'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+import { queryClient } from '@/lib/queryClient'
 
 interface CreateOrderFormProps {
   onClose?: () => void
@@ -44,6 +45,8 @@ export function CreateOrderDialog({ onClose }: CreateOrderFormProps) {
 
   const { handleSubmit, control, setValue, watch, reset } = useForm()
 
+  const router = useRouter()
+
   const selectedProductId = watch('product_id')
   const selectedQuantity = watch('quantity') || 1
   const selectedSupplierId = watch('supplier_id')
@@ -58,14 +61,13 @@ export function CreateOrderDialog({ onClose }: CreateOrderFormProps) {
 
   const onSubmit = () => {
     const purchaseOrder = {
-      purchase_order_id: uuidv4(),
-      date: new Date(),
+      order_date: new Date(),
       supplier_id: selectedSupplierId,
       status: 'PENDENTE',
-      items: orderItems.map((item) => ({
+      purchaseOrderDetails: orderItems.map((item) => ({
         product_id: item.product_id,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
+        quantity: Number(item.quantity),
+        unit_price: Number(item.unit_price),
       })),
     }
     console.log(purchaseOrder)
@@ -74,6 +76,9 @@ export function CreateOrderDialog({ onClose }: CreateOrderFormProps) {
     createPurchaseOrder(purchaseOrder, {
       onSuccess: () => {
         toast.success('Pedido criado com sucesso!')
+        queryClient.invalidateQueries({ queryKey: ['order'] })
+        queryClient.invalidateQueries({ queryKey: ['supplier'] })
+        router.refresh()
         if (onClose) onClose()
         // Optionally reset the form or show a success message
         setOrderItems([])
@@ -82,6 +87,8 @@ export function CreateOrderDialog({ onClose }: CreateOrderFormProps) {
       onError: (err) => {
         // Handle error
         console.error('Error creating purchase order:', err)
+        toast.error('Erro ao criar pedido!')
+
         // Optionally show an error message
       },
     })

@@ -92,8 +92,8 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
     // Perform API request to update the order
     // Example: api.updateOrder(updatedOrder)
 
-    queryClient.invalidateQueries({ queryKey: ['orders'] })
-    queryClient.invalidateQueries({ queryKey: ['suppliers'] })
+    queryClient.invalidateQueries({ queryKey: ['order'] })
+    queryClient.invalidateQueries({ queryKey: ['supplier'] })
     router.refresh()
   })
 
