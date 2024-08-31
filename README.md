@@ -4,11 +4,13 @@ Este é um projeto de inventário web desenvolvido para auxiliar no controle e g
 
 ## Funcionalidades
 
-- Cadastro de produtos: permite adicionar novos produtos ao inventário, incluindo informações como nome, descrição, quantidade e preço.
+- Cadastro de produtos: permite adicionar novos produtos ao inventário, incluindo informações como nome, descrição,categoria, quantidade e preço.
 - Atualização de produtos: possibilita a edição das informações dos produtos já cadastrados, como alteração de quantidade ou preço.
 - Remoção de produtos: permite a exclusão de produtos do inventário.
-- Consulta de produtos: possibilita a busca e visualização dos produtos cadastrados, filtrando por nome, descrição ou categoria.
-- Relatórios: gera relatórios com informações sobre o estoque, como quantidade total de produtos, valor total do estoque, produtos com estoque baixo, entre outros.
+- Consulta de produtos: possibilita a busca e visualização dos produtos cadastrados.
+- Cadastro de pedidos: permite adicionar novos pedidos aos fornecedores.
+- Atualização de pedidos: possibilita a edição das informações dos pedidos que estão pendentes, alterando a quantidade ou apagando um dos produtos.
+- Consulta de pedidos: possibilita a busca e visualização dos pedidos cadastrados.
 
 ## Tecnologias utilizadas
 
