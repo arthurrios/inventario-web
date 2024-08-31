@@ -21,14 +21,12 @@ import { Button } from '../ui/button'
 import { X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
-import { SupplierDTO } from '@/dtos/supplierDTO'
 import { useSuppliers } from '@/contexts/suppliers-context'
 
 interface OrderFormProps {
   mode?: 'create' | 'update'
   order: PurchaseOrderDTO
   onClose?: () => void
-  suppliers: SupplierDTO[] // Add suppliers to props
 }
 
 type FormValues = {
