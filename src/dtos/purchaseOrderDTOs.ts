@@ -32,6 +32,7 @@ export interface PurchaseOrderDTO {
   status: OrderStatusString
   purchaseOrderDetails: PurchaseOrderDetailDTO[]
   purchase_value: number
+  updated_at: Date
 }
 
 export interface PurchaseOrderTableData {
@@ -41,4 +42,5 @@ export interface PurchaseOrderTableData {
   status: OrderStatusString
   purchase_value: number
   purchaseOrderDetails: PurchaseOrderDetailDTO[]
+  updated_at: Date
 }

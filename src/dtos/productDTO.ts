@@ -9,4 +9,6 @@ export interface ProductDTO {
   quantity_in_stock: number
   category_id: string
   category?: CategoryDTO
+  created_at: Date
+  updated_at: Date
 }

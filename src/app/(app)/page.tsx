@@ -37,6 +37,15 @@ export default async function ProductsPage() {
   })
   const dehydratedState = dehydrate(queryClient)
 
+  const products = queryClient.getQueryData<ProductDTO[]>(['product'])
+
+  // Sort products by updated_at in descending order (most recent first)
+  const sortedProducts =
+    products?.sort(
+      (a, b) =>
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+    ) || []
+
   return (
     <HydrationBoundary state={dehydratedState}>
       <div className="flex justify-between items-center">
@@ -57,11 +66,9 @@ export default async function ProductsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {queryClient
-              .getQueryData<ProductDTO[]>(['product'])
-              ?.map((product) => (
-                <ProductTableRow key={product.product_id} product={product} />
-              ))}
+            {sortedProducts.map((product) => (
+              <ProductTableRow key={product.product_id} product={product} />
+            ))}
           </TableBody>
         </Table>
       </div>

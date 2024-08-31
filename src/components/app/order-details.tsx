@@ -45,6 +45,7 @@ interface UpdateOrderResponse {
     quantity: number
     unit_price: number
   }[]
+  updated_at: Date
 }
 
 export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
@@ -117,7 +118,7 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
   const onSubmit = handleSubmit((data) => {
     const updatedOrder: UpdateOrderResponse = {
       purchase_order_id: order.purchase_order_id,
-      order_date: new Date(),
+      order_date: order.order_date,
       supplier_id: supplierId || order.supplier_id,
       status: 'PENDENTE',
       purchaseOrderDetails: order.purchaseOrderDetails.map((item) => ({
@@ -126,6 +127,7 @@ export function OrderDetails({ order, mode, onClose }: OrderFormProps) {
           data[`quantity-${item.purchase_order_detail_id}`] || item.quantity,
         unit_price: Number(item.unit_price),
       })),
+      updated_at: new Date(),
     }
 
     mutation.mutate(updatedOrder)

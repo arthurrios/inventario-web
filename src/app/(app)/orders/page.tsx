@@ -81,6 +81,12 @@ export default async function OrdersPage() {
       }
     }) || []
 
+  // Sort orders by update_date in descending order (most recent first)
+  const sortedOrdersTableData = ordersTableData.sort(
+    (a, b) =>
+      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+  )
+
   return (
     <HydrationBoundary state={dehydratedState}>
       <div className="flex justify-between items-center">
@@ -100,7 +106,7 @@ export default async function OrdersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {ordersTableData.map((order) => (
+            {sortedOrdersTableData.map((order) => (
               <OrderTableRow key={order.purchase_order_id} order={order} />
             ))}
           </TableBody>
